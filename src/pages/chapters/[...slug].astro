@@ -122,9 +122,14 @@ const current = all.findIndex(c => c.id === entry.id) + 1;
       :root[data-sidebar='collapsed'] .chapter-grid > .chapter-resizer {
         display: none !important;
       }
+      /* Widen the outer shell so reclaimed sidebar space + extra goes to content */
+      :root[data-sidebar='collapsed'] .chapter-shell {
+        max-width: min(92rem, 100%) !important;
+      }
       :root[data-sidebar='collapsed'] .chapter-grid > .chapter-article {
         padding-left: 0;
-        max-width: min(72ch, 100%);
+        /* Override prose-bn's 72ch cap with a wider, still-readable Bengali line length */
+        max-width: min(86ch, 100%);
         margin-inline: auto;
       }
 
