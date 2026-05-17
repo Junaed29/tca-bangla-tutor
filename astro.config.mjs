@@ -60,7 +60,7 @@ export default defineConfig({
         mermaidConfig: {
           theme: 'base',
           themeVariables: {
-            fontFamily: '"Hind Siliguri", system-ui, sans-serif',
+            fontFamily: '"Noto Sans Bengali", system-ui, sans-serif',
             primaryColor: '#FFF8EE',
             primaryTextColor: '#2D2A26',
             primaryBorderColor: '#8B5A2B',

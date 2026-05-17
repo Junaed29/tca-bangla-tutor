@@ -70,7 +70,7 @@ npm run preview
 │   ├── consts.ts
 │   └── content.config.ts       # Chapters collection schema
 └── public/
-    ├── fonts/                  # Hind Siliguri + JetBrains Mono (self-hosted woff2)
+    ├── fonts/                  # Noto Sans Bengali + JetBrains Mono (self-hosted woff2)
     └── favicon.svg
 ```
 
@@ -84,7 +84,7 @@ npm run preview
 | **Shiki** | Build-time syntax highlight, dual theme (light + dark)। |
 | **rehype-mermaid** | Mermaid diagrams build time-এ SVG-তে render — কোনো JS lib runtime-এ লোড হয় না। |
 | **Pagefind** | Static client-side full-text search, Bengali Unicode handle করে দারুণ। |
-| **Hind Siliguri** | Bengali web font, self-hosted woff2 (public/fonts/)। |
+| **Noto Sans Bengali** | Bengali web font, variable, self-hosted woff2 (public/fonts/)। |
 
 ## 🛠️ Useful commands
 
