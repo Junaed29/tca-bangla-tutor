@@ -1,12 +1,12 @@
 ---
 number: "১২"
-title: "Quest ১২ — একটা সত্যিকারের Project (with tests)"
-subtitle: "এক জায়গায় সব আনি — State, Effect, Persistence, Navigation, Tests, UI test।"
+title: "Quest ১২, একটা সত্যিকারের Project (with tests)"
+subtitle: "এক জায়গায় সব আনি, State, Effect, Persistence, Navigation, Tests, UI test।"
 part: "সিদ্ধান্ত"
-partLabel: "PART ৪ — সিদ্ধান্ত ও Practice"
+partLabel: "PART ৪, সিদ্ধান্ত ও Practice"
 order: 12
 readingTime: "২৮ মিনিট পড়ার সময়"
-summary: "একটা ছোট কিন্তু complete Todo app — যেখানে সব বড় TCA concept এক জায়গায় কাজে লাগে। Filter, persistence, edit-screen, unit tests, UI test — এবং একটা real debugging story।"
+summary: "একটা ছোট কিন্তু complete Todo app, যেখানে সব বড় TCA concept এক জায়গায় কাজে লাগে। Filter, persistence, edit-screen, unit tests, UI test, এবং একটা real debugging story।"
 ---
 
 import Callout from '../../components/Callout.astro';
@@ -14,25 +14,25 @@ import TeaStallScene from '../../components/TeaStallScene.astro';
 import TryIt from '../../components/TryIt.astro';
 
 <Callout type="tip" title="কোথায় code লিখবে">
-চলো `TCAPlayground/Chapter12_TodoApp/` folder-এ পাঁচটা file বানাই — `Todo.swift`, `TodoStorageClient.swift`, `TodosFeature.swift`, `EditTodoFeature.swift`, `TodosView.swift`। আর tests-এর জন্য `TCAPlaygroundTests/Chapter12_TodoAppTests/` folder-এ unit tests, এবং `TCAPlaygroundUITests/Chapter12_TodoUITests.swift` UI test-এর জন্য।
+চলো `TCAPlayground/Chapter12_TodoApp/` folder-এ পাঁচটা file বানাই, `Todo.swift`, `TodoStorageClient.swift`, `TodosFeature.swift`, `EditTodoFeature.swift`, `TodosView.swift`। আর tests-এর জন্য `TCAPlaygroundTests/Chapter12_TodoAppTests/` folder-এ unit tests, এবং `TCAPlaygroundUITests/Chapter12_TodoUITests.swift` UI test-এর জন্য।
 </Callout>
 
-এতক্ষণ আমরা ছোট ছোট ৫-৬টা piece শিখেছি — counter, fact, composition, navigation, dependency, test। এই অধ্যায়ে সবগুলো একসাথে এক জায়গায়। একটা ছোট কিন্তু complete app।
+এতক্ষণ আমরা ছোট ছোট ৫-৬টা piece শিখেছি, counter, fact, composition, navigation, dependency, test। এই অধ্যায়ে সবগুলো একসাথে এক জায়গায়। একটা ছোট কিন্তু complete app।
 
 ## লক্ষ্য
 
-একটা Todo manager —
+একটা Todo manager:
 
 - Todo যোগ, edit, delete।
 - Mark as done।
 - Filter: All / Active / Completed।
 - App restart-এ data থেকে যায় (local storage)।
-- Edit screen — sheet-এ।
+- Edit screen, sheet-এ।
 - পুরোটার জন্য test।
 
-এই scope ছোট কিন্তু realistic — তোমাদের actual project-এর pattern এর মতো।
+এই scope ছোট কিন্তু realistic, তোমাদের actual project-এর pattern এর মতো।
 
-## File structure — code + tests
+## File structure, code + tests
 
 ```text
 TCAPlayground/
@@ -52,7 +52,7 @@ TCAPlaygroundUITests/
 └── Chapter12_TodoUITests.swift         ← end-to-end UI test
 ```
 
-Code আর tests পাশাপাশি। কোনো feature change হলে — pair-এর test-ও update। কোনো bug ধরা পড়লে — failing test লিখে capture, তারপর fix।
+Code আর tests পাশাপাশি। কোনো feature change হলে, pair-এর test-ও update। কোনো bug ধরা পড়লে, failing test লিখে capture, তারপর fix।
 
 ## পুরো architecture এক ছবিতে
 
@@ -75,7 +75,7 @@ flowchart TB
     style FK fill:#FFF8EE,stroke:#6B6259
 ```
 
-Parent (TodosFeature) → Child (EditTodoFeature) presentation। Dependency দু'টা — storage আর uuid। View শুধু parent-এর সাথে কথা বলে।
+Parent (TodosFeature) → Child (EditTodoFeature) presentation। Dependency দু'টা, storage আর uuid। View শুধু parent-এর সাথে কথা বলে।
 
 ## ১. Model
 
@@ -98,7 +98,7 @@ struct Todo: Equatable, Identifiable, Codable {
 
 `Codable` কারণ persistence-এ JSON-এ লিখবো।
 
-## ২. Storage client — dependency
+## ২. Storage client, dependency
 
 ```swift
 // TodoStorageClient.swift
@@ -152,7 +152,7 @@ extension DependencyValues {
 }
 ```
 
-দেখো — `liveValue`-এ আসল file save, `previewValue`-এ kitchen-sink data, `testValue` unimplemented।
+দেখো, `liveValue`-এ আসল file save, `previewValue`-এ kitchen-sink data, `testValue` unimplemented।
 
 ## ৩. EditTodoFeature
 
@@ -200,7 +200,7 @@ struct EditTodoFeature {
 }
 ```
 
-## ৪. TodosFeature — main reducer
+## ৪. TodosFeature, main reducer
 
 ```swift
 // TodosFeature.swift
@@ -282,7 +282,7 @@ struct TodosFeature {
                 return persist(state.todos)
 
             case let .deleteTodo(offsets):
-                // Filter অনুযায়ী index — actual todo লিস্টে মিলিয়ে delete।
+                // Filter অনুযায়ী index, actual todo লিস্টে মিলিয়ে delete।
                 let toRemove = offsets.map { state.filteredTodos[$0].id }
                 state.todos.removeAll { toRemove.contains($0.id) }
                 return persist(state.todos)
@@ -326,7 +326,7 @@ struct TodosFeature {
 }
 ```
 
-কোডটা বড় ঠিকই, কিন্তু একই pattern বার বার — `case ...: state বদল; effect return`। কোনো new construct নেই — শুধু আগের সবগুলো একসাথে।
+কোডটা বড় ঠিকই, কিন্তু একই pattern বার বার, `case ...: state বদল; effect return`। কোনো new construct নেই, শুধু আগের সবগুলো একসাথে।
 
 ## ৫. View
 
@@ -423,12 +423,12 @@ struct EditTodoView: View {
 }
 ```
 
-কোডটা boring-ই — কিন্তু সেটা ভালো কথা। Pattern repeat হচ্ছে।
+কোডটা boring-ই, কিন্তু সেটা ভালো কথা। Pattern repeat হচ্ছে।
 
 ## ৬. App entry
 
 ```swift
-NavigationLink("১২ — Todo app") {
+NavigationLink("১২, Todo app") {
     TodosView(
         store: Store(initialState: TodosFeature.State()) {
             TodosFeature()
@@ -438,13 +438,13 @@ NavigationLink("১২ — Todo app") {
 .accessibilityIdentifier("nav-chapter-12")
 ```
 
-Run করো — কাজ যোগ করো, mark করো, edit করো, delete করো। App restart করেও দেখো — list ফিরে আসে।
+Run করো, কাজ যোগ করো, mark করো, edit করো, delete করো। App restart করেও দেখো, list ফিরে আসে।
 
-## ৭. Tests folder — ৬+ unit tests, প্রতিটা পথ cover
+## ৭. Tests folder, ৬+ unit tests, প্রতিটা পথ cover
 
-দু'টা feature, ৬টা unit test, ১টা UI test। চলো —
+দু'টা feature, ৬টা unit test, ১টা UI test। চলো:
 
-### TodosFeatureTests — মূল list-এর সব behavior
+### TodosFeatureTests, মূল list-এর সব behavior
 
 ```swift
 // TCAPlaygroundTests/Chapter12_TodoAppTests/TodosFeatureTests.swift
@@ -481,7 +481,7 @@ struct TodosFeatureTests {
         let store = TestStore(initialState: TodosFeature.State(draft: "   ")) {
             TodosFeature()
         }
-        // কোনো state change নেই — block ছাড়াই send।
+        // কোনো state change নেই, block ছাড়াই send।
         await store.send(.addTapped)
     }
 
@@ -520,7 +520,7 @@ struct TodosFeatureTests {
         await store.send(.binding(.set(\.filter, .active))) {
             $0.filter = .active
         }
-        // filteredTodos computed — assert না করেও pending-ই দেখাবে।
+        // filteredTodos computed, assert না করেও pending-ই দেখাবে।
         #expect(store.state.filteredTodos == [pending])
     }
 
@@ -555,7 +555,7 @@ struct TodosFeatureTests {
 }
 ```
 
-### EditTodoFeatureTests — child reducer-এর tests
+### EditTodoFeatureTests, child reducer-এর tests
 
 ```swift
 // TCAPlaygroundTests/Chapter12_TodoAppTests/EditTodoFeatureTests.swift
@@ -602,7 +602,7 @@ struct EditTodoFeatureTests {
 }
 ```
 
-### UI Test — পুরো user flow
+### UI Test, পুরো user flow
 
 ```swift
 // TCAPlaygroundUITests/Chapter12_TodoUITests.swift
@@ -638,22 +638,22 @@ final class Chapter12_TodoUITests: XCTestCase {
 ```
 
 <Callout type="tip" title="UI test fresh state-এ চালানো">
-`--ui-testing` launch argument check করে app initial state load করো — আগের run-এর data delete করে দাও। তাহলে test repeatable, deterministic।
+`--ui-testing` launch argument check করে app initial state load করো, আগের run-এর data delete করে দাও। তাহলে test repeatable, deterministic।
 </Callout>
 
 ### ⌘U চাপো
 
-Xcode-এ ⌘U। Test navigator-এ green diamond দেখবে — সব test pass। ৬+ unit, ১ UI।
+Xcode-এ ⌘U। Test navigator-এ green diamond দেখবে, সব test pass। ৬+ unit, ১ UI।
 
 <Callout type="checkpoint">
 দু'টা feature, ৮টা test (৬ unit + ২ feature child + ১ UI)। সব green। তোমার Todo app এখন real-world ready।
 </Callout>
 
-## Debugging story — যা bug ছিল, যেভাবে ধরলাম
+## Debugging story, যা bug ছিল, যেভাবে ধরলাম
 
-এই app বানানোর সময় একটা bug ছিল — Chapter ১০-এর **Case ২** ("Effect কখনো fire-ই করছে না")-এর ঠিক copy।
+এই app বানানোর সময় একটা bug ছিল, Chapter ১০-এর **Case ২** ("Effect কখনো fire-ই করছে না")-এর ঠিক copy।
 
-প্রথম draft-এ আমি লিখেছিলাম —
+প্রথম draft-এ আমি লিখেছিলাম:
 
 ```swift
 case .addTapped:
@@ -665,7 +665,7 @@ case .addTapped:
     return .none
 ```
 
-App চলছিল — todo list-এ যোগ হচ্ছিল। কিন্তু restart করলে গাঁয়েব। **Persistence কাজ করছে না।** কোথায় bug?
+App চলছিল, todo list-এ যোগ হচ্ছিল। কিন্তু restart করলে গাঁয়েব। **Persistence কাজ করছে না।** কোথায় bug?
 
 ### Step 1: Reproduce
 
@@ -690,11 +690,11 @@ func addTapped_persist_call_করে() async {
 }
 ```
 
-Test fail করল — `persistFinished` action received-ই হচ্ছে না। মানে persist effect শুরুই হয়নি।
+Test fail করল, `persistFinished` action received-ই হচ্ছে না। মানে persist effect শুরুই হয়নি।
 
-### Step 3: Suspect — Effect, না Reducer?
+### Step 3: Suspect, Effect, না Reducer?
 
-`_printChanges()` add করে দেখলাম —
+`_printChanges()` add করে দেখলাম:
 
 ```
 received action:
@@ -707,11 +707,11 @@ TodosFeature.State(
 )
 ```
 
-State বদলেছে। কিন্তু persistFinished action আর আসছে না। মানে — `.run { ... }` effect-টা schedule-ই হয়নি।
+State বদলেছে। কিন্তু persistFinished action আর আসছে না। মানে, `.run { ... }` effect-টা schedule-ই হয়নি।
 
 ### Step 4: Reducer-এর ভেতরে breakpoint
 
-`addTapped` case-এ breakpoint। Pause হলে দেখলাম — `persist(state.todos)` call হচ্ছে ঠিকই, return value কোথাও যাচ্ছে না। Statement-form, expression না।
+`addTapped` case-এ breakpoint। Pause হলে দেখলাম, `persist(state.todos)` call হচ্ছে ঠিকই, return value কোথাও যাচ্ছে না। Statement-form, expression না।
 
 ### Step 5: Fix + regression test
 
@@ -727,51 +727,51 @@ case .addTapped:
 Test green। App-restart-এ list ফিরে আসে।
 
 <Callout type="mystery">
-এই bug Chapter ১০-এর Case ২-এর textbook example। বাস্তবে এটাই সবচেয়ে frequent TCA bug — *"একটা return ভুলে গেছি।"* Compiler help করে না, কারণ Swift-এ unused expression valid (warning দিতে পারে, কিন্তু error না)। `_printChanges()` আর failing test-ই বাঁচাল।
+এই bug Chapter ১০-এর Case ২-এর textbook example। বাস্তবে এটাই সবচেয়ে frequent TCA bug, *"একটা return ভুলে গেছি।"* Compiler help করে না, কারণ Swift-এ unused expression valid (warning দিতে পারে, কিন্তু error না)। `_printChanges()` আর failing test-ই বাঁচাল।
 </Callout>
 
-দেখলে — test না থাকলে production-এ যেত। User restart করত, data লুপ্ত, ১★ review দিত। Test থাকায় ১৫ মিনিটে ধরা পড়ল।
+দেখলে, test না থাকলে production-এ যেত। User restart করত, data লুপ্ত, ১★ review দিত। Test থাকায় ১৫ মিনিটে ধরা পড়ল।
 
 ## চা স্টলে যেমন
 
 <Callout type="tea-stall">
-এই Todo app-এর state — বোর্ড। মামার চারটা কাজ — কাস্টমারের `addTapped` (নতুন অর্ডার যোগ), `toggleCompleted` (এক অর্ডার "ready" mark করা), `deleteTodo` (cancel)। আর ছোট ভাই (`storage`) — মামা প্রতিবার বোর্ড update হলে তাকে বলে *"করিম, পেছনের diary-তে লিখে রাখ।"*। App restart হলে মামা বলে *"করিম, diary-টা নিয়ে আয় — দেখি কী লেখা ছিল।"*।
+এই Todo app-এর state, বোর্ড। মামার চারটা কাজ, কাস্টমারের `addTapped` (নতুন অর্ডার যোগ), `toggleCompleted` (এক অর্ডার "ready" mark করা), `deleteTodo` (cancel)। আর ছোট ভাই (`storage`), মামা প্রতিবার বোর্ড update হলে তাকে বলে *"করিম, পেছনের diary-তে লিখে রাখ।"*। App restart হলে মামা বলে *"করিম, diary-টা নিয়ে আয়, দেখি কী লেখা ছিল।"*।
 
-প্রতিটা TCA app আসলে এই চা স্টলের একটা variant। যত বড় app-ই হোক — পাঁচ বন্ধুর role একই।
+প্রতিটা TCA app আসলে এই চা স্টলের একটা variant। যত বড় app-ই হোক, পাঁচ বন্ধুর role একই।
 </Callout>
 
 ## যা শিখলে এই project থেকে
 
-- বড় feature-এ pattern repeat হয় — boilerplate, কিন্তু predictable।
+- বড় feature-এ pattern repeat হয়, boilerplate, কিন্তু predictable।
 - Persistence-ও একটা dependency, কোনো special concept না।
-- Edit screen sheet-এ — `@Presents` + `Destination` pattern।
-- Filter computed property হিসেবে — কোনো extra state নয়, derive করা।
+- Edit screen sheet-এ, `@Presents` + `Destination` pattern।
+- Filter computed property হিসেবে, কোনো extra state নয়, derive করা।
 - Test লেখা easy যখন dependency override-যোগ্য।
 
 ## নিজে চেষ্টা করো
 
 <TryIt title="তিনটা বাড়তি feature">
-১। **Today's count**: একটা প্রাপ্ত summary view — "তোমার আজকের কাজ: ৮টা, শেষ: ৫টা, বাকি: ৩টা"। Computed property।
+১। **Today's count**: একটা প্রাপ্ত summary view, "তোমার আজকের কাজ: ৮টা, শেষ: ৫টা, বাকি: ৩টা"। Computed property।
 
-২। **Search**: filter-এর পাশে একটা search field — যা title-এ search করবে। `state.search` add করো, `filteredTodos`-এ apply।
+২। **Search**: filter-এর পাশে একটা search field, যা title-এ search করবে। `state.search` add করো, `filteredTodos`-এ apply।
 
 ৩। **Reordering**: List-এ drag দিয়ে reorder। `.onMove`-এ একটা action পাঠাও।
 
-প্রতিটা পরিবর্তন ৫-১০ লাইনের বেশি না — যদি বেশি লাগে, pattern থেকে সরে এসেছ।
+প্রতিটা পরিবর্তন ৫-১০ লাইনের বেশি না, যদি বেশি লাগে, pattern থেকে সরে এসেছ।
 </TryIt>
 
 ## এই অধ্যায়ের সারমর্ম
 
 <Callout type="remember">
-- বড় feature মানে নতুন concept নয় — পুরনো pattern-এর repeat।
-- Persistence একটা dependency-এর মতোই — `load`/`save` closures।
-- Computed properties (`filteredTodos`) দিয়ে derived state — দু'বার store করো না।
+- বড় feature মানে নতুন concept নয়, পুরনো pattern-এর repeat।
+- Persistence একটা dependency-এর মতোই, `load`/`save` closures।
+- Computed properties (`filteredTodos`) দিয়ে derived state, দু'বার store করো না।
 - Sheet edit + delegate communication = clean parent-child।
 - প্রতিটা mutation-এর জন্য one test = full coverage শীঘ্র।
-- UI test critical user flows-এর জন্য — accessibility identifiers দিয়ে।
+- UI test critical user flows-এর জন্য, accessibility identifiers দিয়ে।
 - বাস্তব debugging-এ `_printChanges` + failing test = ৯০% bug ১৫ মিনিটে।
 </Callout>
 
 <Callout type="level-up">
-🎉 **Level Up!** তুমি এইমাত্র একটা full TCA app বানালে — features, persistence, navigation, tests, UI test, এমনকি একটা real debugging story। চা ঠান্ডা না হওয়ার আগে শেষ quest-এ যাও।
+🎉 **Level Up!** তুমি এইমাত্র একটা full TCA app বানালে, features, persistence, navigation, tests, UI test, এমনকি একটা real debugging story। চা ঠান্ডা না হওয়ার আগে শেষ quest-এ যাও।
 </Callout>

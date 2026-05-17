@@ -1,12 +1,12 @@
 ---
 number: "০৬"
-title: "Quest ০৬ — দুইটা Feature একসাথে"
-subtitle: "Scope-এর সাথে পরিচয় — composition কীভাবে কাজ করে।"
+title: "Quest ০৬, দুইটা Feature একসাথে"
+subtitle: "Scope-এর সাথে পরিচয়, composition কীভাবে কাজ করে।"
 part: "হাতে কলমে"
-partLabel: "PART ২ — হাতে কলমে"
+partLabel: "PART ২, হাতে কলমে"
 order: 6
 readingTime: "১৩ মিনিট পড়ার সময়"
-summary: "Counter আর Profile — দুটো আলাদা feature এক screen-এ একসাথে। Scope দিয়ে parent reducer কে child-এ connect করা।"
+summary: "Counter আর Profile, দুটো আলাদা feature এক screen-এ একসাথে। Scope দিয়ে parent reducer কে child-এ connect করা।"
 ---
 
 import Callout from '../../components/Callout.astro';
@@ -14,19 +14,19 @@ import TeaStallScene from '../../components/TeaStallScene.astro';
 import TryIt from '../../components/TryIt.astro';
 
 <Callout type="tip" title="কোথায় code লিখবে">
-চলো `TCAPlayground/Chapter06_Composition/` folder-এ তিনটা নতুন file বানাই — `CounterFeature.swift` (আগেরটার একটা সংস্করণ), `ProfileFeature.swift`, আর `AppFeature.swift`। সবগুলো এই folder-এ।
+চলো `TCAPlayground/Chapter06_Composition/` folder-এ তিনটা নতুন file বানাই, `CounterFeature.swift` (আগেরটার একটা সংস্করণ), `ProfileFeature.swift`, আর `AppFeature.swift`। সবগুলো এই folder-এ।
 </Callout>
 
-এতক্ষণ আমরা **এক feature** নিয়ে কাজ করেছি। এবার দুটো features একসাথে এক screen-এ দেখাবো। কীভাবে এক বড় feature ভাঙা যায় ছোট ছোট feature-এ — সেটাই **composition**, আর সেটাই TCA-র *"Composable"* শব্দটার অর্থ।
+এতক্ষণ আমরা **এক feature** নিয়ে কাজ করেছি। এবার দুটো features একসাথে এক screen-এ দেখাবো। কীভাবে এক বড় feature ভাঙা যায় ছোট ছোট feature-এ, সেটাই **composition**, আর সেটাই TCA-র *"Composable"* শব্দটার অর্থ।
 
 ## লক্ষ্য
 
-এক screen-এ দুটো অংশ —
+এক screen-এ দুটো অংশ:
 
 - উপরে একটা **Counter** (counter চিনি, আগের অধ্যায়ের)।
-- নিচে একটা ছোট **Profile** — username field, আর একটা *"Save"* button।
+- নিচে একটা ছোট **Profile**, username field, আর একটা *"Save"* button।
 
-দুটো feature **আলাদা** thinking — একটার সাথে অন্যটার connection নেই। কিন্তু এক view-তে show করছি, এবং উভয়েরই state app-level-এ থাকছে।
+দুটো feature **আলাদা** thinking, একটার সাথে অন্যটার connection নেই। কিন্তু এক view-তে show করছি, এবং উভয়েরই state app-level-এ থাকছে।
 
 ```mermaid
 flowchart TB
@@ -36,7 +36,7 @@ flowchart TB
   style X fill:transparent,stroke:transparent
 ```
 
-## ১. CounterFeature — আগেরটাই, একটু সাজানো
+## ১. CounterFeature, আগেরটাই, একটু সাজানো
 
 ```swift
 // CounterFeature.swift
@@ -71,7 +71,7 @@ struct CounterFeature {
 
 কিছু নতুন না। আগের counter-এর exact কপি।
 
-## ২. ProfileFeature — নতুন
+## ২. ProfileFeature, নতুন
 
 ```swift
 // ProfileFeature.swift
@@ -110,9 +110,9 @@ struct ProfileFeature {
 }
 ```
 
-দেখো — Counter আর Profile **একে অপরের কথা জানে না**। দুটো আলাদা ফাইল, আলাদা State, আলাদা Action। এটাই isolation।
+দেখো, Counter আর Profile **একে অপরের কথা জানে না**। দুটো আলাদা ফাইল, আলাদা State, আলাদা Action। এটাই isolation।
 
-## ৩. AppFeature — দুটোকে এক জায়গায় আনো
+## ৩. AppFeature, দুটোকে এক জায়গায় আনো
 
 এবার একটা parent reducer বানাবো যেটা দুটোকে compose করবে।
 
@@ -137,7 +137,7 @@ struct AppFeature {
     }
 
     var body: some ReducerOf<Self> {
-        // Scope বলে দেয় — counter action আসলে CounterFeature reducer চালাও।
+        // Scope বলে দেয়, counter action আসলে CounterFeature reducer চালাও।
         Scope(state: \.counter, action: \.counter) {
             CounterFeature()
         }
@@ -147,7 +147,7 @@ struct AppFeature {
             ProfileFeature()
         }
 
-        // Parent-এর নিজস্ব logic এখানে — যদি দরকার হয়।
+        // Parent-এর নিজস্ব logic এখানে, যদি দরকার হয়।
         // আপাতত কিছু নেই।
         Reduce { state, action in
             return .none
@@ -156,15 +156,15 @@ struct AppFeature {
 }
 ```
 
-## `Scope` — সবচেয়ে গুরুত্বপূর্ণ ব্যাপার
+## `Scope`, সবচেয়ে গুরুত্বপূর্ণ ব্যাপার
 
-`Scope(state: \.counter, action: \.counter) { CounterFeature() }` — এই লাইনটা বুঝলে composition বুঝে গেছ।
+`Scope(state: \.counter, action: \.counter) { CounterFeature() }`, এই লাইনটা বুঝলে composition বুঝে গেছ।
 
 `Scope` parent reducer-কে বলে:
 
-> *"যখনই `Action.counter(...)` আসবে, parent state-এর `counter` field-এ focus কর। সেই sub-state-কে `CounterFeature` reducer-এর কাছে পাঠাও। সে যা ফেরাবে — আপডেটেড sub-state — সেটা parent state-এর `counter` field-এ লিখে দাও।"*
+> *"যখনই `Action.counter(...)` আসবে, parent state-এর `counter` field-এ focus কর। সেই sub-state-কে `CounterFeature` reducer-এর কাছে পাঠাও। সে যা ফেরাবে, আপডেটেড sub-state, সেটা parent state-এর `counter` field-এ লিখে দাও।"*
 
-`\.counter` দুটো — একটা state keypath, একটা action case keypath। মানে — parent state-এর কোন property, আর parent action-এর কোন case এই child-এর সাথে map করে।
+`\.counter` দুটো, একটা state keypath, একটা action case keypath। মানে, parent state-এর কোন property, আর parent action-এর কোন case এই child-এর সাথে map করে।
 
 ```mermaid
 flowchart LR
@@ -174,7 +174,7 @@ flowchart LR
     B2 -->|state.counter = ...| A2([new AppFeature.State])
 ```
 
-## ৪. View — দুই feature এক screen-এ
+## ৪. View, দুই feature এক screen-এ
 
 ```swift
 // AppView.swift (Chapter06 folder-এ)
@@ -219,14 +219,14 @@ struct AppView: View {
 }
 ```
 
-দেখো —
+দেখো:
 
-- `store.counter.count` — child state-এ access। Parent store-এর মাধ্যমে।
-- `store.send(.counter(.incrementTapped))` — child-এ action পাঠানো। **Wrap করতে হচ্ছে** — কারণ outer action enum-এর `counter(...)` case-এ ভিতরে inner action যাচ্ছে।
-- Manual `Binding` — TextField-এর জন্য। পরে আমরা `@Bindable` দিয়ে এটাকে আরো সহজ করতে পারি (BindableAction-এর সাথে)।
+- `store.counter.count`, child state-এ access। Parent store-এর মাধ্যমে।
+- `store.send(.counter(.incrementTapped))`, child-এ action পাঠানো। **Wrap করতে হচ্ছে**, কারণ outer action enum-এর `counter(...)` case-এ ভিতরে inner action যাচ্ছে।
+- Manual `Binding`, TextField-এর জন্য। পরে আমরা `@Bindable` দিয়ে এটাকে আরো সহজ করতে পারি (BindableAction-এর সাথে)।
 
 <Callout type="tip" title="@Bindable দিয়ে আরো clean করা যায়">
-যদি action enum-এ `@CasePathable` আর `BindableAction` use করো — তাহলে `Binding` manual করতে হয় না। View-এ লেখা যায়:
+যদি action enum-এ `@CasePathable` আর `BindableAction` use করো, তাহলে `Binding` manual করতে হয় না। View-এ লেখা যায়:
 
 ```swift
 @Bindable var store: StoreOf<AppFeature>
@@ -240,7 +240,7 @@ TextField("Name", text: $store.profile.username)
 ## ৫. App entry-তে যোগ করো
 
 ```swift
-NavigationLink("০৬ — Composition") {
+NavigationLink("০৬, Composition") {
     AppView(
         store: Store(initialState: AppFeature.State()) {
             AppFeature()
@@ -249,30 +249,30 @@ NavigationLink("০৬ — Composition") {
 }
 ```
 
-Run করো। Counter চলবে। Profile-এ নাম লিখে save করলে দেখাবে। দুটো feature আলাদা ভাবে কাজ করছে — কিন্তু এক ছাদের নিচে।
+Run করো। Counter চলবে। Profile-এ নাম লিখে save করলে দেখাবে। দুটো feature আলাদা ভাবে কাজ করছে, কিন্তু এক ছাদের নিচে।
 
 ## কেন এই pattern important
 
-ভাবো একবার — তুমি যদি Counter-এ একটা bug পাও। কোথায় খুঁজবে? `CounterFeature.swift`। AppFeature-এ যেতেই হবে না। Profile-এ যেতেই হবে না।
+ভাবো একবার, তুমি যদি Counter-এ একটা bug পাও। কোথায় খুঁজবে? `CounterFeature.swift`। AppFeature-এ যেতেই হবে না। Profile-এ যেতেই হবে না।
 
-ভাবো — একই Counter feature-টা তুমি অন্য কোনো screen-এও use করতে চাও। কোনো সমস্যা নেই — `CounterFeature()` কোথাও instantiate করো, `Store` বানাও, ব্যস।
+ভাবো, একই Counter feature-টা তুমি অন্য কোনো screen-এও use করতে চাও। কোনো সমস্যা নেই, `CounterFeature()` কোথাও instantiate করো, `Store` বানাও, ব্যস।
 
-ভাবো — Counter team-এ একজন কাজ করছে, Profile team-এ অন্যজন। দুজনের কোডে conflict নেই — কারণ আলাদা ফাইল, আলাদা struct।
+ভাবো, Counter team-এ একজন কাজ করছে, Profile team-এ অন্যজন। দুজনের কোডে conflict নেই, কারণ আলাদা ফাইল, আলাদা struct।
 
 এটাই composition-এর শক্তি।
 
 ## চা স্টলে যেমন
 
 <Callout type="tea-stall">
-ভাবো একটা মামার দুইটা স্টল চালু — চায়ের স্টল আর সিঙ্গাড়ার স্টল। দুটোর নিজস্ব মামা, নিজস্ব বোর্ড, নিজস্ব অর্ডার। কিন্তু *বড় মামা* মাঝে মাঝে এসে দুটো স্টলেই নজর রাখে — দরকার পড়লে এক স্টলের লাভ আরেকটায় transfer করে।
+ভাবো একটা মামার দুইটা স্টল চালু, চায়ের স্টল আর সিঙ্গাড়ার স্টল। দুটোর নিজস্ব মামা, নিজস্ব বোর্ড, নিজস্ব অর্ডার। কিন্তু *বড় মামা* মাঝে মাঝে এসে দুটো স্টলেই নজর রাখে, দরকার পড়লে এক স্টলের লাভ আরেকটায় transfer করে।
 
-`Scope(state: \.chai, action: \.chai) { ChaiStall() }` মানে — *"বড় মামা, চায়ের স্টলের জন্য তুমি ছোট মামার উপর ভরসা রাখো। শুধু চায়ের অর্ডার এলে, ছোট মামার বোর্ডের ওই অংশটা তাকে দাও, সে যা update করবে সেটা তোমার বড় বোর্ডের ওই অংশে লিখে দিও।"* এটাই Scope।
+`Scope(state: \.chai, action: \.chai) { ChaiStall() }` মানে, *"বড় মামা, চায়ের স্টলের জন্য তুমি ছোট মামার উপর ভরসা রাখো। শুধু চায়ের অর্ডার এলে, ছোট মামার বোর্ডের ওই অংশটা তাকে দাও, সে যা update করবে সেটা তোমার বড় বোর্ডের ওই অংশে লিখে দিও।"* এটাই Scope।
 </Callout>
 
 ## নিজে চেষ্টা করো
 
 <TryIt title="তৃতীয় feature যোগ">
-এই app-এ একটা তৃতীয় feature যোগ করো — `NotesFeature`। এটার state-এ একটা `notes: [String]` থাকবে, action-এ `case addNoteTapped(String)` আর `case clearTapped`। AppFeature-এ scope করো, View-এ একটা list দেখাও।
+এই app-এ একটা তৃতীয় feature যোগ করো, `NotesFeature`। এটার state-এ একটা `notes: [String]` থাকবে, action-এ `case addNoteTapped(String)` আর `case clearTapped`। AppFeature-এ scope করো, View-এ একটা list দেখাও।
 
 হিন্ট:
 
@@ -289,7 +289,7 @@ Scope(state: \.notes, action: \.notes) {
 }
 ```
 
-প্রথম দু'টা feature ছোঁবে না — শুধু আরেকটা Scope add হবে।
+প্রথম দু'টা feature ছোঁবে না, শুধু আরেকটা Scope add হবে।
 </TryIt>
 
 ## এই অধ্যায়ের সারমর্ম
@@ -299,13 +299,13 @@ Scope(state: \.notes, action: \.notes) {
 - Parent feature-এর Action-এ child-এর action `case childName(ChildFeature.Action)` form-এ wrap থাকে।
 - `Scope(state: \.child, action: \.child) { ChildFeature() }` দিয়ে parent-এ child-কে connect।
 - View-এ `store.child.something`, `store.send(.child(.someAction))`।
-- Children একে অপরকে চেনে না — সব communication parent-এর মধ্য দিয়ে।
+- Children একে অপরকে চেনে না, সব communication parent-এর মধ্য দিয়ে।
 </Callout>
 
 <Callout type="checkpoint">
-তুমি একটা parent reducer-এ দুটো child compose করতে শিখলে। বড় app-এ এই pattern বার বার চলে — Scope, Scope, Scope, তারপর একটা ছোট outer Reduce।
+তুমি একটা parent reducer-এ দুটো child compose করতে শিখলে। বড় app-এ এই pattern বার বার চলে, Scope, Scope, Scope, তারপর একটা ছোট outer Reduce।
 </Callout>
 
 <Callout type="level-up">
-🎉 **Level Up!** Part ২ শেষ। তুমি এখন একটা ছোট app নিজে দাঁড়িয়ে দাঁড়িয়ে বানাতে পারো। চা refill করো — Part ৩-এ আরো গভীরে যাচ্ছি: navigation, dependency, testing।
+🎉 **Level Up!** Part ২ শেষ। তুমি এখন একটা ছোট app নিজে দাঁড়িয়ে দাঁড়িয়ে বানাতে পারো। চা refill করো, Part ৩-এ আরো গভীরে যাচ্ছি: navigation, dependency, testing।
 </Callout>

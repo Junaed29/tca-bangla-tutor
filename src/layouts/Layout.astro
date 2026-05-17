@@ -13,7 +13,7 @@ interface Props {
 }
 
 const { title, description, ogImage } = Astro.props;
-const fullTitle = title ? `${title} — ${SITE.title}` : SITE.title;
+const fullTitle = title ? `${title}, ${SITE.title}` : SITE.title;
 const desc = description ?? SITE.description;
 const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url).toString();
 ---
@@ -33,7 +33,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url).toString()
       href={withBase('/fonts/NotoSansBengali-bengali.woff2')} />
 
     <style is:global set:html={`
-      /* Noto Sans Bengali is a variable font — one file covers 400/500/700. */
+      /* Noto Sans Bengali is a variable font, one file covers 400/500/700. */
       @font-face { font-family: 'Noto Sans Bengali'; font-style: normal; font-weight: 400 700; font-display: swap;
         src: url('${withBase('/fonts/NotoSansBengali-bengali.woff2')}') format('woff2');
         unicode-range: U+0951-0952, U+0964-0965, U+0980-09FE, U+1CD0, U+1CD2, U+1CD5-1CD6, U+1CD8, U+1CE1, U+1CEA, U+1CED, U+1CF2, U+1CF5-1CF7, U+200C-200D, U+20B9, U+25CC, U+A8F1; }
@@ -58,7 +58,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url).toString()
     <meta name="twitter:card" content="summary" />
 
     <script is:inline>
-      // Theme bootstrap — runs before paint to avoid flash.
+      // Theme bootstrap, runs before paint to avoid flash.
       (function() {
         try {
           const stored = localStorage.getItem('theme');
@@ -83,7 +83,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url).toString()
     <SiteFooter />
 
     <script>
-      // Theme toggle handler — wired in SiteHeader, but logic central here.
+      // Theme toggle handler, wired in SiteHeader, but logic central here.
       document.addEventListener('astro:page-load', () => {
         const btn = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
         if (!btn) return;

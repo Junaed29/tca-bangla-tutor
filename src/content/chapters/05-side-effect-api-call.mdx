@@ -1,12 +1,12 @@
 ---
 number: "০৫"
-title: "Quest ০৫ — ছোট ভাইকে কাজে লাগাও (Side Effect)"
-subtitle: "ছোট ভাইকে কাজে লাগাও — বাইরের জগৎ থেকে data আনা।"
+title: "Quest ০৫, ছোট ভাইকে কাজে লাগাও (Side Effect)"
+subtitle: "ছোট ভাইকে কাজে লাগাও, বাইরের জগৎ থেকে data আনা।"
 part: "হাতে কলমে"
-partLabel: "PART ২ — হাতে কলমে"
+partLabel: "PART ২, হাতে কলমে"
 order: 5
 readingTime: "১৫ মিনিট পড়ার সময়"
-summary: ".run effect দিয়ে API call। NumberFact-এর উদাহরণে দেখবো — async কাজ TCA-তে কীভাবে handle হয়।"
+summary: ".run effect দিয়ে API call। NumberFact-এর উদাহরণে দেখবো, async কাজ TCA-তে কীভাবে handle হয়।"
 ---
 
 import Callout from '../../components/Callout.astro';
@@ -17,20 +17,20 @@ import TryIt from '../../components/TryIt.astro';
 চলো `TCAPlayground/Chapter05_NumberFact/` folder-এ একটা নতুন Swift file বানাই। File → New → File → Swift File, নাম `NumberFactFeature.swift`।
 </Callout>
 
-আগের counter-এ মামা একাই সব করেছে — কাউকে বাজারে পাঠাতে হয়নি। কিন্তু real apps-এ API call ছাড়া কিছুই হয় না। এই অধ্যায়ে ছোট ভাই করিম কাজে নামবে।
+আগের counter-এ মামা একাই সব করেছে, কাউকে বাজারে পাঠাতে হয়নি। কিন্তু real apps-এ API call ছাড়া কিছুই হয় না। এই অধ্যায়ে ছোট ভাই করিম কাজে নামবে।
 
 ## আজকের লক্ষ্য
 
-Counter app-এর সাথে একটা **"Fact আনো"** button থাকবে। Tap করলে — বর্তমান count-টার একটা মজার তথ্য `http://numbersapi.com/{count}` থেকে fetch হবে আর screen-এ দেখাবে।
+Counter app-এর সাথে একটা **"Fact আনো"** button থাকবে। Tap করলে, বর্তমান count-টার একটা মজার তথ্য `http://numbersapi.com/{count}` থেকে fetch হবে আর screen-এ দেখাবে।
 
-দু'টো নতুন জিনিস শিখবো এই অধ্যায়ে —
+দু'টো নতুন জিনিস শিখবো এই অধ্যায়ে:
 
 - **`.run` effect** দিয়ে async কাজ।
-- **`@Dependency`** দিয়ে API client inject — যাতে test করা যায়।
+- **`@Dependency`** দিয়ে API client inject, যাতে test করা যায়।
 
 ## ১. আগের State-কে বাড়াও
 
-`NumberFactFeature.swift`-এ পুরো feature নতুন করে লিখবো —
+`NumberFactFeature.swift`-এ পুরো feature নতুন করে লিখবো:
 
 ```swift
 import ComposableArchitecture
@@ -55,7 +55,7 @@ struct NumberFactFeature {
         case factFailed              // API call fail হয়েছে।
     }
 
-    // আপাতত URLSession সরাসরি use করবো — পরের অধ্যায়ে dependency বানাবো।
+    // আপাতত URLSession সরাসরি use করবো, পরের অধ্যায়ে dependency বানাবো।
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
@@ -92,7 +92,7 @@ struct NumberFactFeature {
 
             case .factFailed:
                 state.isLoading = false
-                state.fact = "ইন্টারনেট-এ একটু সমস্যা — পরে চেষ্টা করো।"
+                state.fact = "ইন্টারনেট-এ একটু সমস্যা, পরে চেষ্টা করো।"
                 return .none
             }
         }
@@ -100,13 +100,13 @@ struct NumberFactFeature {
 }
 ```
 
-দেখো — Reducer-এর shape একই: `Reduce { state, action in switch action ... }`. শুধু এক জায়গায় `.none`-এর পরিবর্তে `.run { ... }`।
+দেখো, Reducer-এর shape একই: `Reduce { state, action in switch action ... }`. শুধু এক জায়গায় `.none`-এর পরিবর্তে `.run { ... }`।
 
 ## `.run` effect-টা কী
 
-`.run { send in ... }` মানে — *"এই async block-টা চালাও। শেষে যদি কোনো নতুন action পাঠাতে চাও, `send(...)` দিয়ে পাঠাও।"*
+`.run { send in ... }` মানে, *"এই async block-টা চালাও। শেষে যদি কোনো নতুন action পাঠাতে চাও, `send(...)` দিয়ে পাঠাও।"*
 
-ভিতরে যা আছে — সব normal `async`/`await` code। `URLSession`, `Task.sleep`, file read — যা চাই।
+ভিতরে যা আছে, সব normal `async`/`await` code। `URLSession`, `Task.sleep`, file read, যা চাই।
 
 ```swift
 return .run { [count = state.count] send in
@@ -115,23 +115,23 @@ return .run { [count = state.count] send in
 }
 ```
 
-কিছু সূক্ষ্ম জিনিস —
+কিছু সূক্ষ্ম জিনিস:
 
 ### `[count = state.count]` কেন
 
-Closure-এর শুরুতে এই `[count = state.count]` — এটা **value capture**। মুহূর্তে যা `state.count`, সেটাই closure-এর ভেতরে যাবে। কারণ Effect run হওয়ার সময় state হয়তো বদলে গেছে — যদি ততক্ষণে user আরো ৩ বার tap করে।
+Closure-এর শুরুতে এই `[count = state.count]`, এটা **value capture**। মুহূর্তে যা `state.count`, সেটাই closure-এর ভেতরে যাবে। কারণ Effect run হওয়ার সময় state হয়তো বদলে গেছে, যদি ততক্ষণে user আরো ৩ বার tap করে।
 
 এটা না দিলেও কাজ হবে অনেক ক্ষেত্রে, কিন্তু `state` সরাসরি access করতে পারবে না effect-এ। **Capture-ই safer।**
 
 ### `catch:` block
 
-`.run` ভিতরে throw হলে কী হবে? দ্বিতীয় closure দাও — `catch: { error, send in ... }`। সেখান থেকে আরেকটা action পাঠাতে পারো (failure case)।
+`.run` ভিতরে throw হলে কী হবে? দ্বিতীয় closure দাও, `catch: { error, send in ... }`। সেখান থেকে আরেকটা action পাঠাতে পারো (failure case)।
 
-না দিলে — TCA console-এ একটা warning print করবে, error ignore হবে। তোমার app crash করবে না, কিন্তু user কিছুই বুঝবে না কী হলো। তাই **catch দাও**।
+না দিলে, TCA console-এ একটা warning print করবে, error ignore হবে। তোমার app crash করবে না, কিন্তু user কিছুই বুঝবে না কী হলো। তাই **catch দাও**।
 
-## ২. View — loading state দেখাও
+## ২. View, loading state দেখাও
 
-`NumberFactView.swift` —
+`NumberFactView.swift`:
 
 ```swift
 import SwiftUI
@@ -178,14 +178,14 @@ struct NumberFactView: View {
 }
 ```
 
-View-তেও কিছু complexity বাড়লো — `if store.isLoading` দিয়ে spinner, `if let fact = store.fact` দিয়ে result। কিন্তু এ সব data-driven — `store.isLoading` true হলে spinner আসবে, false হলে যাবে। View কোনো `Task`-এর কথা জানে না, কোনো `URLSession`-এর কথা জানে না।
+View-তেও কিছু complexity বাড়লো, `if store.isLoading` দিয়ে spinner, `if let fact = store.fact` দিয়ে result। কিন্তু এ সব data-driven, `store.isLoading` true হলে spinner আসবে, false হলে যাবে। View কোনো `Task`-এর কথা জানে না, কোনো `URLSession`-এর কথা জানে না।
 
 ## ৩. App entry-তে যোগ করো
 
-`TCAPlaygroundApp.swift`-এর list-এ একটা NavigationLink যোগ করো —
+`TCAPlaygroundApp.swift`-এর list-এ একটা NavigationLink যোগ করো:
 
 ```swift
-NavigationLink("০৫ — Number Fact") {
+NavigationLink("০৫, Number Fact") {
     NumberFactView(
         store: Store(initialState: NumberFactFeature.State()) {
             NumberFactFeature()
@@ -221,41 +221,41 @@ sequenceDiagram
   S->>V: re-render (fact দেখাচ্ছে)
 ```
 
-লক্ষ্য করো — তিনবার Reducer চলেছে: একবার `factButtonTapped`-এ, একবার response-এ (`factResponse`), আর যদি error হয় তাহলে `factFailed`-এ। প্রতিবারে state-এর pure mutation, কোনো হিজিবিজি না।
+লক্ষ্য করো, তিনবার Reducer চলেছে: একবার `factButtonTapped`-এ, একবার response-এ (`factResponse`), আর যদি error হয় তাহলে `factFailed`-এ। প্রতিবারে state-এর pure mutation, কোনো হিজিবিজি না।
 
 ## চা স্টলে যেমন
 
 <Callout type="tea-stall">
-এই app-এ ছোট ভাই করিম কাজ করেছে — মামা বলল *"করিম, ৮ নম্বর সম্পর্কে কিছু এনে দে"*, করিম পাশের `numbersapi.com` বাজারে গিয়ে fact এনে মামাকে দিয়ে বলল *"মামা, fact এসে গেছে: ৮-এর ৪টা বাহু থাকে।"*। মামা সেটা শুনে বোর্ডে লিখল।
+এই app-এ ছোট ভাই করিম কাজ করেছে, মামা বলল *"করিম, ৮ নম্বর সম্পর্কে কিছু এনে দে"*, করিম পাশের `numbersapi.com` বাজারে গিয়ে fact এনে মামাকে দিয়ে বলল *"মামা, fact এসে গেছে: ৮-এর ৪টা বাহু থাকে।"*। মামা সেটা শুনে বোর্ডে লিখল।
 
-মামা নিজে কখনো বাজারে যায়নি। `.run` block-এর ভেতরে যা যা ঘটেছে — সব করিমের জগতের কাজ। Reducer pure থেকেছে।
+মামা নিজে কখনো বাজারে যায়নি। `.run` block-এর ভেতরে যা যা ঘটেছে, সব করিমের জগতের কাজ। Reducer pure থেকেছে।
 </Callout>
 
-## একটা গুরুত্বপূর্ণ catch — URLSession সরাসরি use করা ভালো না
+## একটা গুরুত্বপূর্ণ catch, URLSession সরাসরি use করা ভালো না
 
 এই অধ্যায়ের code-এ আমরা `URLSession.shared.data(...)` সরাসরি use করেছি। এটা **কাজ করে**, কিন্তু testing-এর জন্য খারাপ। কেন?
 
 - Test environment-এ network call চালালে test slow হয়।
-- Network not always available — CI-তে test fail করবে।
-- Real API hit করে test লেখা মানে — API broken হলে তোমার test-ও broken।
+- Network not always available, CI-তে test fail করবে।
+- Real API hit করে test লেখা মানে, API broken হলে তোমার test-ও broken।
 - API rate limit-এ পড়ে যেতে পারো।
 
-তাই আসল pattern হলো — `URLSession`-কে একটা *"client"*-এ wrap করো, সেটা feature-এ inject করো। Test-এ fake client দিয়ে replace করো।
+তাই আসল pattern হলো, `URLSession`-কে একটা *"client"*-এ wrap করো, সেটা feature-এ inject করো। Test-এ fake client দিয়ে replace করো।
 
-এই pattern-এর নাম **Dependency Injection**, আর TCA-তে এটার জন্য আছে `@Dependency` macro। আমরা অধ্যায় ০৮-এ এটাই করবো — `NumberFactClient` বানাবো, `@Dependency(\.numberFact)` দিয়ে inject করবো।
+এই pattern-এর নাম **Dependency Injection**, আর TCA-তে এটার জন্য আছে `@Dependency` macro। আমরা অধ্যায় ০৮-এ এটাই করবো, `NumberFactClient` বানাবো, `@Dependency(\.numberFact)` দিয়ে inject করবো।
 
-আপাতত URLSession সরাসরি use করছি — কারণ আগে concept বুঝতে হবে, তারপর refactor।
+আপাতত URLSession সরাসরি use করছি, কারণ আগে concept বুঝতে হবে, তারপর refactor।
 
 ## নিজে চেষ্টা করো
 
 <TryIt title="দু'টো extension">
 ১। **Auto-fact:** prefix counter-এর প্রতি change-এর সাথে auto fact load হবে। মানে `incrementTapped` হলে count বাড়ার সাথে সাথে fact-এর জন্যও request যাবে।
 
-হিন্ট: `.incrementTapped` case-এ `.run` return করো, যেটা fact fetch করে। কিন্তু সাবধান — দ্রুত দ্রুত tap করলে multiple request যাবে। সেটার সমাধান cancellable effect (অধ্যায় ০৬-এ দেখবো)।
+হিন্ট: `.incrementTapped` case-এ `.run` return করো, যেটা fact fetch করে। কিন্তু সাবধান, দ্রুত দ্রুত tap করলে multiple request যাবে। সেটার সমাধান cancellable effect (অধ্যায় ০৬-এ দেখবো)।
 
 ২। **Manual refresh button:** fact-এর পাশে একটা refresh icon button। Tap করলে আবার একই count-এর জন্য fact fetch হবে।
 
-হিন্ট: একটা নতুন action — `case refreshFactTapped`। এটা handle করার সময় `factButtonTapped`-এর মতোই কাজ।
+হিন্ট: একটা নতুন action, `case refreshFactTapped`। এটা handle করার সময় `factButtonTapped`-এর মতোই কাজ।
 
 <details>
 <summary>প্রথমটার hint</summary>
@@ -273,7 +273,7 @@ case .incrementTapped:
     }
 ```
 
-কিন্তু দ্রুত tap করলে — race condition। সেটা সামলাতে cancellable effect, যেটা পরের অধ্যায়ে আসছে।
+কিন্তু দ্রুত tap করলে, race condition। সেটা সামলাতে cancellable effect, যেটা পরের অধ্যায়ে আসছে।
 </details>
 </TryIt>
 
@@ -281,17 +281,17 @@ case .incrementTapped:
 
 <Callout type="remember">
 - **`.run { send in ... }`** = async effect শুরু। ভিতরে normal `async`/`await`।
-- শেষে `await send(.someAction)` — নতুন action পাঠানো।
+- শেষে `await send(.someAction)`, নতুন action পাঠানো।
 - `catch: { _, send in ... }` দিয়ে error handle।
-- `[count = state.count]` দিয়ে value capture — race condition এড়াতে।
-- View নিজে network এর কথা জানে না — শুধু `isLoading`, `fact` দেখায়।
+- `[count = state.count]` দিয়ে value capture, race condition এড়াতে।
+- View নিজে network এর কথা জানে না, শুধু `isLoading`, `fact` দেখায়।
 - API client সরাসরি use করা চলে, কিন্তু test-এর জন্য `@Dependency` ভালো (অধ্যায় ০৮)।
 </Callout>
 
 <Callout type="checkpoint">
-তুমি এইমাত্র তোমার প্রথম side effect চালালে। `.run` block-এ async কাজ, শেষে নতুন action — এটাই বাইরের জগতের সাথে কথা বলার TCA-উপায়।
+তুমি এইমাত্র তোমার প্রথম side effect চালালে। `.run` block-এ async কাজ, শেষে নতুন action, এটাই বাইরের জগতের সাথে কথা বলার TCA-উপায়।
 </Callout>
 
 <Callout type="level-up">
-🎉 **Level Up!** ছোট ভাই করিম এখন তোমার কথা শুনে কাজ করে। চা ঠান্ডা হওয়ার আগে পরের quest-এ চলো — দুটো feature একসাথে compose।
+🎉 **Level Up!** ছোট ভাই করিম এখন তোমার কথা শুনে কাজ করে। চা ঠান্ডা হওয়ার আগে পরের quest-এ চলো, দুটো feature একসাথে compose।
 </Callout>

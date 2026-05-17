@@ -41,7 +41,7 @@ const current = all.findIndex(c => c.id === entry.id) + 1;
     <div class="chapter-grid grid gap-8 lg:gap-0" data-chapter-grid>
       <TocSidebar chapters={all} currentSlug={entry.id} />
 
-      <div class="chapter-resizer hidden lg:block" data-resizer role="separator" aria-orientation="vertical" aria-label="সাইডবার-এর প্রস্থ বদলাও — drag করো বা double-click দিয়ে reset" tabindex="0">
+      <div class="chapter-resizer hidden lg:block" data-resizer role="separator" aria-orientation="vertical" aria-label="সাইডবার-এর প্রস্থ বদলাও, drag করো বা double-click দিয়ে reset" tabindex="0">
         <span aria-hidden="true"></span>
       </div>
 
@@ -85,7 +85,7 @@ const current = all.findIndex(c => c.id === entry.id) + 1;
       }
       .chapter-grid > .chapter-article {
         padding-left: 1.5rem;
-        /* Override prose-bn's 72ch cap — generous Bengali reading column */
+        /* Override prose-bn's 72ch cap, generous Bengali reading column */
         max-width: min(108ch, 100%);
       }
 
@@ -120,7 +120,7 @@ const current = all.findIndex(c => c.id === entry.id) + 1;
         outline: none;
       }
 
-      /* Collapsed state — single full-width column so the article fills it */
+      /* Collapsed state, single full-width column so the article fills it */
       :root[data-sidebar='collapsed'] .chapter-grid {
         grid-template-columns: minmax(0, 1fr) !important;
       }
@@ -183,7 +183,7 @@ const current = all.findIndex(c => c.id === entry.id) + 1;
       const showBtn = document.querySelector<HTMLElement>('[data-show-sidebar]');
       if (!grid) return;
 
-      // Restore (in case inline script missed — and for SPA-style page-load).
+      // Restore (in case inline script missed, and for SPA-style page-load).
       const storedW = localStorage.getItem('tca-sidebar-w');
       if (storedW) root.style.setProperty('--sidebar-w', storedW);
       const collapsed = localStorage.getItem('tca-sidebar-collapsed') === 'true';

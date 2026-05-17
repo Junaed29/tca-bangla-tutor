@@ -12,13 +12,13 @@ const { prev, next } = Astro.props;
   {prev ? (
     <a href={withBase(`/chapters/${prev.slug}`)} class="group block rounded-xl border border-[rgb(var(--border))] bg-[rgb(var(--surface))] p-4 no-underline hover:border-[rgb(var(--primary))]">
       <span class="block text-xs uppercase tracking-wide text-[rgb(var(--text-muted))] mb-1">← আগের অধ্যায়</span>
-      <span class="block font-bold text-[rgb(var(--text))] group-hover:text-[rgb(var(--primary))]">অধ্যায় {prev.number} — {prev.title}</span>
+      <span class="block font-bold text-[rgb(var(--text))] group-hover:text-[rgb(var(--primary))]">অধ্যায় {prev.number}, {prev.title}</span>
     </a>
   ) : <span></span>}
   {next ? (
     <a href={withBase(`/chapters/${next.slug}`)} class="group block rounded-xl border border-[rgb(var(--border))] bg-[rgb(var(--surface))] p-4 no-underline hover:border-[rgb(var(--primary))] md:text-right">
       <span class="block text-xs uppercase tracking-wide text-[rgb(var(--text-muted))] mb-1">পরের অধ্যায় →</span>
-      <span class="block font-bold text-[rgb(var(--text))] group-hover:text-[rgb(var(--primary))]">অধ্যায় {next.number} — {next.title}</span>
+      <span class="block font-bold text-[rgb(var(--text))] group-hover:text-[rgb(var(--primary))]">অধ্যায় {next.number}, {next.title}</span>
     </a>
   ) : <span></span>}
 </nav>
