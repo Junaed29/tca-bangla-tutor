@@ -1,5 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { withBase } from '../lib/url';
 
 const terms: { en: string; bn: string; def: string; chapter?: string }[] = [
   { en: 'State', bn: 'বোর্ড / state', def: 'একটা feature-এর সব data এক জায়গায়। struct, Equatable, @ObservableState।', chapter: '03' },
@@ -46,7 +47,7 @@ const sorted = [...terms].sort((a, b) => a.en.localeCompare(b.en));
             <code class="font-mono text-[rgb(var(--primary))] font-bold">{term.en}</code>
             <span class="text-sm text-[rgb(var(--text-muted))]">{term.bn}</span>
             {term.chapter && (
-              <a href={`/chapters/${[
+              <a href={withBase(`/chapters/${[
                 '00-shuru-korar-age',
                 '01-cha-stole-swagatam',
                 '02-tca-ki-mvvm-er-songe-parthokyo',
@@ -61,7 +62,7 @@ const sorted = [...terms].sort((a, b) => a.en.localeCompare(b.en));
                 '11-kokhon-tca-kokhon-na',
                 '12-chhoto-real-project',
                 '13-erpor-kothay-jabe',
-              ][parseInt(term.chapter)]}`}
+              ][parseInt(term.chapter)]}`)}
                  class="ml-auto text-xs text-[rgb(var(--accent))] no-underline hover:underline">
                 অধ্যায় {term.chapter} →
               </a>

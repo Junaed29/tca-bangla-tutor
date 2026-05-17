@@ -1,0 +1,80 @@
+name: Deploy to GitHub Pages
+
+# Runs whenever the `release` branch is updated.
+# Manual run also available from the Actions tab.
+on:
+  push:
+    branches: [release]
+  workflow_dispatch:
+
+# GitHub Pages requires these permissions on the workflow's GITHUB_TOKEN.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only allow one Pages deploy at a time; let the latest one win.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build site
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium (needed by rehype-mermaid)
+        run: npx playwright install --with-deps chromium
+
+      - name: Resolve site + base path
+        id: paths
+        run: |
+          OWNER="${GITHUB_REPOSITORY_OWNER}"
+          REPO_NAME="${GITHUB_REPOSITORY##*/}"
+          # If the repo is named "<owner>.github.io" → it's a user/org site, base="/"
+          # Otherwise → it's a project site, base="/<repo>"
+          OWNER_LC="$(echo "$OWNER" | tr '[:upper:]' '[:lower:]')"
+          if [ "$REPO_NAME" = "${OWNER_LC}.github.io" ]; then
+            echo "site=https://${OWNER_LC}.github.io" >> "$GITHUB_OUTPUT"
+            echo "base=/" >> "$GITHUB_OUTPUT"
+          else
+            echo "site=https://${OWNER_LC}.github.io" >> "$GITHUB_OUTPUT"
+            echo "base=/${REPO_NAME}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build with Astro
+        env:
+          SITE_URL: ${{ steps.paths.outputs.site }}
+          BASE_PATH: ${{ steps.paths.outputs.base }}
+        run: |
+          echo "Building with SITE_URL=$SITE_URL BASE_PATH=$BASE_PATH"
+          npm run build
+
+      - name: Upload static site as Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4

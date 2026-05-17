@@ -1,4 +1,5 @@
 ---
+import { withBase } from '../lib/url';
 ---
 <footer class="border-t border-[rgb(var(--border))] bg-[rgb(var(--surface))]/60 mt-16">
   <div class="max-w-6xl mx-auto px-4 py-10 grid gap-8 md:grid-cols-3 text-sm text-[rgb(var(--text-muted))]">
@@ -9,10 +10,10 @@
     <div>
       <p class="font-bold text-[rgb(var(--text))] mb-2">দ্রুত যাও</p>
       <ul class="space-y-1">
-        <li><a href="/" class="no-underline hover:underline">হোম</a></li>
-        <li><a href="/chapters/00-shuru-korar-age" class="no-underline hover:underline">শুরু থেকে পড়ো</a></li>
-        <li><a href="/glossary" class="no-underline hover:underline">শব্দার্থ</a></li>
-        <li><a href="/about" class="no-underline hover:underline">কেন এই সাইট</a></li>
+        <li><a href={withBase('/')} class="no-underline hover:underline">হোম</a></li>
+        <li><a href={withBase('/chapters/00-shuru-korar-age')} class="no-underline hover:underline">শুরু থেকে পড়ো</a></li>
+        <li><a href={withBase('/glossary')} class="no-underline hover:underline">শব্দার্থ</a></li>
+        <li><a href={withBase('/about')} class="no-underline hover:underline">কেন এই সাইট</a></li>
       </ul>
     </div>
     <div>

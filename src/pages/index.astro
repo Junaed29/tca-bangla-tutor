@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import { getCollection } from 'astro:content';
 import { PARTS } from '../consts';
 import TeaStallScene from '../components/TeaStallScene.astro';
+import { withBase } from '../lib/url';
 
 const chapters = (await getCollection('chapters')).sort((a, b) => a.data.order - b.data.order);
 const partOrder = ['warm-up', 'গল্প', 'হাতে কলমে', 'গভীরে', 'সিদ্ধান্ত', 'closing'] as const;
@@ -21,11 +22,11 @@ const parts = partOrder
         The Composable Architecture কঠিন না, শুধু একটু গুছিয়ে বলার অপেক্ষা। MVVM থেকে SwiftUI যারা শিখেছ, তোমাদের জন্যই এই সাইট — ১৪টা quest, একটা চা স্টল, ৫ জন বন্ধু, আর শেষে একটা bug-শিকারের রাত।
       </p>
       <div class="flex flex-wrap items-center justify-center gap-3">
-        <a href={`/chapters/${chapters[0]?.id ?? '00-shuru-korar-age'}`}
+        <a href={withBase(`/chapters/${chapters[0]?.id ?? '00-shuru-korar-age'}`)}
            class="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-[rgb(var(--primary))] text-white no-underline font-bold hover:bg-[rgb(var(--accent))]">
           🍵 Quest শুরু করো
         </a>
-        <a href="/about" class="inline-flex items-center gap-2 px-5 py-3 rounded-lg border border-[rgb(var(--border))] text-[rgb(var(--text))] no-underline hover:border-[rgb(var(--primary))]">
+        <a href={withBase('/about')} class="inline-flex items-center gap-2 px-5 py-3 rounded-lg border border-[rgb(var(--border))] text-[rgb(var(--text))] no-underline hover:border-[rgb(var(--primary))]">
           কেন এই সাইট?
         </a>
       </div>
@@ -45,7 +46,7 @@ const parts = partOrder
             {p.entries.map(c => (
               <li class="flex items-start gap-2">
                 <span class="font-mono text-xs text-[rgb(var(--text-muted))] pt-0.5">{c.data.number}</span>
-                <a href={`/chapters/${c.id}`} class="no-underline hover:underline text-[rgb(var(--text))] hover:text-[rgb(var(--primary))]">{c.data.title}</a>
+                <a href={withBase(`/chapters/${c.id}`)} class="no-underline hover:underline text-[rgb(var(--text))] hover:text-[rgb(var(--primary))]">{c.data.title}</a>
               </li>
             ))}
           </ul>

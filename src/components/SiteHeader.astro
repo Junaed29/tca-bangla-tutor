@@ -1,18 +1,19 @@
 ---
 import { SITE } from '../consts';
+import { withBase } from '../lib/url';
 ---
 <header data-site-header class="site-header border-b border-[rgb(var(--border))] bg-[rgb(var(--surface))]/85 backdrop-blur sticky top-0 z-30 transition-transform duration-300 will-change-transform">
   <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-4">
-    <a href="/" class="flex items-center gap-2 no-underline" aria-label="হোম">
+    <a href={withBase('/')} class="flex items-center gap-2 no-underline" aria-label="হোম">
       <span aria-hidden="true" class="inline-flex w-9 h-9 items-center justify-center rounded-full bg-[rgb(var(--code-bg))] border border-[rgb(var(--border))] text-lg">🍵</span>
       <span class="font-bold text-[rgb(var(--text))] text-lg leading-none whitespace-nowrap">{SITE.title}</span>
     </a>
 
     <nav class="hidden md:flex items-center gap-4 ml-4 text-sm">
-      <a href="/" class="text-[rgb(var(--text-muted))] hover:text-[rgb(var(--primary))] no-underline">হোম</a>
-      <a href="/chapters/00-shuru-korar-age" class="text-[rgb(var(--text-muted))] hover:text-[rgb(var(--primary))] no-underline">অধ্যায়</a>
-      <a href="/glossary" class="text-[rgb(var(--text-muted))] hover:text-[rgb(var(--primary))] no-underline">শব্দার্থ</a>
-      <a href="/about" class="text-[rgb(var(--text-muted))] hover:text-[rgb(var(--primary))] no-underline">কেন এই সাইট</a>
+      <a href={withBase('/')} class="text-[rgb(var(--text-muted))] hover:text-[rgb(var(--primary))] no-underline">হোম</a>
+      <a href={withBase('/chapters/00-shuru-korar-age')} class="text-[rgb(var(--text-muted))] hover:text-[rgb(var(--primary))] no-underline">অধ্যায়</a>
+      <a href={withBase('/glossary')} class="text-[rgb(var(--text-muted))] hover:text-[rgb(var(--primary))] no-underline">শব্দার্থ</a>
+      <a href={withBase('/about')} class="text-[rgb(var(--text-muted))] hover:text-[rgb(var(--primary))] no-underline">কেন এই সাইট</a>
     </nav>
 
     <div class="ml-auto flex items-center gap-2">

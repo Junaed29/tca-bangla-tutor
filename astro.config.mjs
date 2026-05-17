@@ -7,9 +7,15 @@ import pagefind from 'astro-pagefind';
 import rehypeMermaid from 'rehype-mermaid';
 import { transformerNotationHighlight, transformerNotationDiff } from '@shikijs/transformers';
 
+// SITE / BASE come from CI env vars when deployed to GitHub Pages.
+// Locally they fall back to the dev server defaults.
+const SITE = process.env.SITE_URL || 'http://localhost:4321';
+const BASE = process.env.BASE_PATH || '/';
+
 // https://astro.build/config
 export default defineConfig({
-  site: 'https://tca-bangla.example.com',
+  site: SITE,
+  base: BASE,
   output: 'static',
   trailingSlash: 'never',
   build: {
