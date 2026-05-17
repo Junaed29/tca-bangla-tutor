@@ -117,10 +117,18 @@ summary: "এক লাইনের summary"
 
 ## 🌐 Deploy
 
-`npm run build` করার পর `dist/` folder কে যেকোনো static host এ push করো:
+এই repo-তে **GitHub Pages**-এর জন্য একটা CI/CD workflow ইতিমধ্যেই configure করা — `release` branch-এ push করলে site auto-deploy হবে।
+
+```bash
+# main-এ যা commit করেছ, সেটাই release-এ push করো:
+git push origin main:release
+```
+
+Workflow file: [.github/workflows/deploy.yml](.github/workflows/deploy.yml)। প্রথমবার setup-এর full instruction `DEPLOYMENT_GUIDE.md`-এ ছিল (delete হয়ে গিয়ে থাকতে পারে — git log-এ দেখো)।
+
+অন্য host ব্যবহার করতে চাইলে — `npm run build` করো, তারপর `dist/` folder-টা যেকোনো static host-এ push করো:
 
 - **Netlify / Vercel / Cloudflare Pages** — repo connect করলেই auto-build।
-- **GitHub Pages** — `dist/` কে `gh-pages` branch এ push।
 - **নিজের server** — `dist/` কে `/var/www/...` এ rsync।
 
 ## ❤️ Credit
