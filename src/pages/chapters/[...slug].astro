@@ -114,9 +114,9 @@ const current = all.findIndex(c => c.id === entry.id) + 1;
         outline: none;
       }
 
-      /* Collapsed state */
+      /* Collapsed state — single full-width column so the article fills it */
       :root[data-sidebar='collapsed'] .chapter-grid {
-        grid-template-columns: 0 0 minmax(0, 1fr) !important;
+        grid-template-columns: minmax(0, 1fr) !important;
       }
       :root[data-sidebar='collapsed'] .chapter-grid > [data-toc-sidebar],
       :root[data-sidebar='collapsed'] .chapter-grid > .chapter-resizer {
@@ -124,6 +124,8 @@ const current = all.findIndex(c => c.id === entry.id) + 1;
       }
       :root[data-sidebar='collapsed'] .chapter-grid > .chapter-article {
         padding-left: 0;
+        max-width: min(72ch, 100%);
+        margin-inline: auto;
       }
 
       /* Body cursor while dragging */
