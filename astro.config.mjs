@@ -8,9 +8,15 @@ import rehypeMermaid from 'rehype-mermaid';
 import { transformerNotationHighlight, transformerNotationDiff } from '@shikijs/transformers';
 
 // SITE / BASE come from CI env vars when deployed to GitHub Pages.
-// Locally they fall back to the dev server defaults.
-const SITE = process.env.SITE_URL || 'http://localhost:4321';
-const BASE = process.env.BASE_PATH || '/';
+// `astro dev` keeps the clean localhost root so local browsing stays at
+// http://localhost:4321/ . `astro build` (and CI) fall back to the real
+// production URLs so the sitemap and <meta og:url> tags are correct even
+// when the site is built outside of GitHub Actions.
+const isDev = process.env.NODE_ENV !== 'production';
+const SITE = process.env.SITE_URL
+  || (isDev ? 'http://localhost:4321' : 'https://junaed29.github.io');
+const BASE = process.env.BASE_PATH
+  || (isDev ? '/' : '/tca-bangla-tutor');
 
 // https://astro.build/config
 export default defineConfig({
