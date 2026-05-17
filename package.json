@@ -6,10 +6,11 @@
     "node": ">=22.12.0"
   },
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
-    "preview": "astro preview",
-    "astro": "astro"
+    "dev": "PATH=\"/opt/homebrew/opt/node/bin:/usr/local/opt/node/bin:$PATH\" astro dev",
+    "build": "PATH=\"/opt/homebrew/opt/node/bin:/usr/local/opt/node/bin:$PATH\" astro build",
+    "preview": "PATH=\"/opt/homebrew/opt/node/bin:/usr/local/opt/node/bin:$PATH\" astro preview",
+    "astro": "PATH=\"/opt/homebrew/opt/node/bin:/usr/local/opt/node/bin:$PATH\" astro",
+    "check-node": "node -e \"console.log('node:', process.version, '@', process.execPath)\""
   },
   "dependencies": {
     "@pagefind/default-ui": "^1.5.2",
@@ -27,8 +28,5 @@
     "rehype-mermaid": "^3.0.0",
     "shiki": "^4.0.2",
     "tailwindcss": "^4.3.0"
-  },
-  "overrides": {
-    "rollup": "npm:@rollup/wasm-node@^4.60.0"
   }
 }

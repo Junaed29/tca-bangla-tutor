@@ -6,7 +6,7 @@ MVVM/SwiftUI থেকে আসা Bengali developer-দের জন্য এ
 
 ## 🚀 কীভাবে browser-এ চালাবে (Quick start)
 
-প্রয়োজন: **Node 22+** (ভালো হয় Node 24 বা তার পরের version)। যাচাই করো `node --version` দিয়ে।
+প্রয়োজন: **Node 22+** Homebrew থেকে ইনস্টল করা — `brew install node`। যাচাই করো `npm run check-node` দিয়ে।
 
 ```bash
 # ১. প্রথম বার dependencies install করো (এক বার internet লাগবে):
@@ -22,6 +22,18 @@ npm run dev
 দেখা শেষে browser-এ যাও — `http://localhost:4321` — হোমপেজ থেকে অধ্যায় ০০ শুরু।
 
 > 💡 প্রথম `npm install` দিতে ২-৩ মিনিট সময় লাগতে পারে (~৫০০ MB)। এর পরে সব offline।
+
+### 🍎 macOS Sequoia (15+) note
+
+macOS Sequoia-তে কিছু IDE-bundled Node (যেমন VS Code/Codex-এর built-in node) প্রিবিল্ট native binary load করতে পারে না — *Team ID mismatch* error দেয়। এই কারণে `npm run dev`/`build`/`preview` scripts-গুলো নিজে থেকেই Homebrew-installed Node-কে PATH-এর আগে রেখে চালায়।
+
+তোমার যদি Homebrew Node না থাকে, install করে নাও:
+
+```bash
+brew install node
+```
+
+তারপর `npm run dev` কাজ করবে যেকোনো terminal থেকে — IDE-bundled Node থাকলেও সমস্যা নেই।
 
 ---
 
