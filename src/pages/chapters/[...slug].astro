@@ -77,7 +77,7 @@ const current = all.findIndex(c => c.id === entry.id) + 1;
     @media (min-width: 1024px) {
       /* Widen the outer container so the article can breathe */
       .chapter-shell {
-        max-width: min(92rem, 100%) !important;
+        max-width: min(104rem, 100%) !important;
       }
       .chapter-grid {
         grid-template-columns: var(--sidebar-w, 16rem) 12px minmax(0, 1fr);
@@ -85,8 +85,8 @@ const current = all.findIndex(c => c.id === entry.id) + 1;
       }
       .chapter-grid > .chapter-article {
         padding-left: 1.5rem;
-        /* Override prose-bn's 72ch cap with a wider, still-readable Bengali line length */
-        max-width: min(86ch, 100%);
+        /* Override prose-bn's 72ch cap — generous Bengali reading column */
+        max-width: min(108ch, 100%);
       }
 
       /* Resizer column */
