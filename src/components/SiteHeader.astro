@@ -1,7 +1,7 @@
 ---
 import { SITE } from '../consts';
 ---
-<header class="border-b border-[rgb(var(--border))] bg-[rgb(var(--surface))]/85 backdrop-blur sticky top-0 z-30">
+<header data-site-header class="site-header border-b border-[rgb(var(--border))] bg-[rgb(var(--surface))]/85 backdrop-blur sticky top-0 z-30 transition-transform duration-300 will-change-transform">
   <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-4">
     <a href="/" class="flex items-center gap-2 no-underline" aria-label="হোম">
       <span aria-hidden="true" class="inline-flex w-9 h-9 items-center justify-center rounded-full bg-[rgb(var(--code-bg))] border border-[rgb(var(--border))] text-lg">🍵</span>
@@ -104,5 +104,54 @@ import { SITE } from '../consts';
     }
 
     document.addEventListener('astro:page-load', setupSearch);
+
+    // Auto-hide on scroll-down, reveal on scroll-up.
+    let lastY = window.scrollY;
+    let ticking = false;
+    const SHOW_THRESHOLD = 6;   // px — ignore tiny jitter
+    const PINNED_UNTIL  = 80;   // px — always show near top
+
+    function onScroll() {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const header = document.querySelector('[data-site-header]') as HTMLElement | null;
+        if (!header) { ticking = false; return; }
+
+        const y = window.scrollY;
+        const dy = y - lastY;
+        const dialog = document.getElementById('search-dialog') as HTMLDialogElement | null;
+        const searchOpen = dialog?.open === true;
+
+        if (y < PINNED_UNTIL || searchOpen) {
+          header.classList.remove('header-hidden');
+        } else if (dy > SHOW_THRESHOLD) {
+          header.classList.add('header-hidden');     // scrolling down → hide
+        } else if (dy < -SHOW_THRESHOLD) {
+          header.classList.remove('header-hidden');  // scrolling up → show
+        }
+
+        lastY = y;
+        ticking = false;
+      });
+    }
+
+    function setupAutoHide() {
+      lastY = window.scrollY;
+      // Make sure header is visible on every navigation.
+      document.querySelector('[data-site-header]')?.classList.remove('header-hidden');
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    document.addEventListener('astro:page-load', setupAutoHide);
   </script>
+
+  <style>
+    .site-header.header-hidden {
+      transform: translateY(-100%);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .site-header { transition: none; }
+    }
+  </style>
 </header>
