@@ -1,0 +1,106 @@
+---
+number: "১২"
+title: "এরপর কোথায় যাবে"
+subtitle: "এই সাইট শেষ — কিন্তু শেখা শেষ না। এখান থেকে কোন পথ।"
+part: "closing"
+partLabel: "শেষ কথা"
+order: 12
+readingTime: "৫ মিনিট পড়ার সময়"
+summary: "এই ১২টা অধ্যায়ে যা শিখলে, তার পর কোথায় গভীরে যাবে — official sources, advanced topics, community।"
+---
+
+import Callout from '../../components/Callout.astro';
+import TryIt from '../../components/TryIt.astro';
+
+পৌঁছে গেলে। অভিনন্দন। 🍵
+
+তুমি এখন TCA-র ভেতরের পাঁচ বন্ধুকে চেনো — state, action, reducer, store, effect। তুমি জানো — কখন এই pattern reach করতে হবে, কখন না। তুমি একটা ছোট real project লিখেছ। তুমি test লিখেছ।
+
+এটাই enough? — না, কারণ TCA-তে আরো গভীরে যাওয়ার জায়গা আছে। কিন্তু **এটাই foundation**। বাকি সব এই foundation-এর উপর।
+
+## এখান থেকে কোথায়
+
+### Official sources (এদেরকে bookmark করো)
+
+- **TCA repo**: [`pointfreeco/swift-composable-architecture`](https://github.com/pointfreeco/swift-composable-architecture)
+- **Official docs**: [pointfreeco.github.io/swift-composable-architecture](https://pointfreeco.github.io/swift-composable-architecture/main/documentation/composablearchitecture/)
+- **Meet the Composable Architecture** — DocC tutorial: [এই link](https://pointfreeco.github.io/swift-composable-architecture/main/tutorials/meetcomposablearchitecture)
+- **Migration guides** — repo-র `Documentation.docc/Articles/MigrationGuides/` folder-এ। যখন নতুন version আসে।
+
+### Examples folder — gold mine
+
+[`Examples/`](https://github.com/pointfreeco/swift-composable-architecture/tree/main/Examples) folder-এ — `CaseStudies`, `Search`, `SyncUps`। `SyncUps` particularly — পুরো একটা medium-sized app TCA-তে। কোড পড়লে অনেক real-world pattern শিখবে।
+
+### Point-Free episodes
+
+[Point-Free](https://www.pointfree.co) - Brandon আর Stephen-এর video series। কিছু free, কিছু paid। TCA design decisions এর গভীর ব্যাখ্যা পাবে।
+
+## যা শিখোনি — কিন্তু পরে দরকার পড়বে
+
+এই site-এ basics covered। আরো কিছু advanced জিনিস আছে যেগুলো প্রয়োজন হলে শিখবে —
+
+### `Shared` state
+
+App-এর একাধিক feature যদি same state share করে — singleton-জাতীয় কিছু (logged-in user, app settings) — তখন `@Shared` property wrapper use হয়। Docs-এ "SharedState" article দেখো।
+
+### Long-running effects
+
+WebSocket connection, location updates, file watchers — `.run` দিয়ে শুরু, কিন্তু cancel-able. `.cancellable(id:)`, `.merge(...)`, `Effect.publisher(...)` — এই tools।
+
+### `Reducer` builders গভীরে
+
+`Scope`, `IfLet`, `ForEach`, `OptionalReducer` — সব combine করে complex feature বানানো। কোনো এক জায়গায় bottleneck লাগলে — docs-এর "Reducer composition" article।
+
+### Animation আর state
+
+State change-এর সাথে animation — `withAnimation { store.send(...) }`-এর equivalent TCA-তে আছে। SwiftUI animation conventions এর সাথে আগে আগে চলে।
+
+### Migration থেকে পুরনো TCA
+
+পুরনো codebase-এ পড়লে — `Reducer<S, A, E>`, `.pullback`, `WithViewStore` — সেগুলো আজ modernize করতে হলে — repo-র Migration guide-এ ধাপে ধাপে instructions আছে।
+
+## পরের ৩০ দিনের জন্য একটা plan
+
+<TryIt title="৩০ দিনের practice schedule">
+**সপ্তাহ ১**: TCAPlayground-এ এই site-এর ৬টা feature নিজে লিখে দেখো। কপি না — দেখে দেখে নিজে টাইপ করো।
+
+**সপ্তাহ ২**: একটা ছোট নতুন app — যেটা তুমি বানাতে চাও সেটা ছোট করে TCA-তে। Tip calculator, daily journal, expense tracker — কিছু একটা।
+
+**সপ্তাহ ৩**: `pointfreeco/swift-composable-architecture/Examples/SyncUps` repo clone করে পড়ো। প্রতিটা feature পড়ে নিজে বলে দাও — *"এই reducer-এ কী হচ্ছে, কোথায় effect, কোথায় destination"*।
+
+**সপ্তাহ ৪**: তোমার আগের চলমান কোনো MVVM project — তার একটা feature TCA-তে port করার চেষ্টা করো। ছোট feature বেছে নিও — পুরোটা না। শিখবে এই migration-এর সময় কোথায় কোথায় বদল লাগে।
+
+এই ৩০ দিনের শেষে — তুমি TCA-তে আত্মবিশ্বাসী হবে। প্রতিদিন ১ ঘণ্টা — শেষে অনেক।
+</TryIt>
+
+## কিছু অভ্যাস যা সাহায্য করবে
+
+- **প্রতিটা feature আলাদা ফাইলে** — `XxxFeature.swift`, `XxxView.swift`। বড় file ১৫০-২০০ লাইনের বেশি হতে দিও না।
+- **নাম রাখো consistent**: action-এ `xxxTapped`, `xxxResponse`, `xxxFailed`। 
+- **State pure**: state-এ কোনো method, কোনো computed property যেটা reducer-এর কাজ করে, রাখো না। শুধু derived data ok।
+- **প্রতিটা bug-fix-এ একটা test**: feature change করার সাথে সাথে test add — debt জমতে দিও না।
+- **Junior dev-কে শেখাও**: যা শিখলে, সেটা অন্যকে শেখাতে গিয়ে নিজে আরও পরিষ্কার বুঝবে।
+
+## একটা শেষ চা স্টলের গল্প
+
+কয়েক বছর পর — তোমার নিজের একটা টিম আছে। তিন-চারজন junior দেব। নতুন কেউ এসেছে — সে SwiftUI জানে, কিন্তু TCA-তে নতুন।
+
+তুমি তাকে নিয়ে যাবে চা স্টলে। বসিয়ে দিয়ে বলবে — *"দেখো মামাকে। বোর্ডে কে লেখে? শুধু মামা। কাস্টমার অর্ডার দেয় — সেটা action। ছোট ভাই বাজারে যায় — সেটা effect..."*
+
+আর সে চা-র কাপ-এ চুমুক দিয়ে বলবে — *"আরে, এতো সহজ ব্যাপার! চিন্তাই করছিলাম না এভাবে।"*
+
+ঠিক সেটাই আমার এই site-এর শেষ লক্ষ্য ছিল। তুমিও সেটা পেলে। 🍵
+
+## এই অধ্যায়ের সারমর্ম
+
+<Callout type="remember">
+- Foundations covered — basics complete।
+- Next: official docs, SyncUps example, Point-Free episodes।
+- Advanced topics later: `@Shared`, long-running effects, complex reducers, animation।
+- ৩০ দিনের plan — practice, real project, source-read, migration।
+- শেখা শেষ না — কিন্তু confidence এখন তোমার সাথে।
+</Callout>
+
+ধন্যবাদ পুরোটা শেষ করার জন্য। যদি কোনো অধ্যায়ে আবার ফিরে আসতে হয় — header-এ search আছে, sidebar-এ TOC আছে। চা ঠান্ডা হলে আরেক কাপ বানিয়ে নাও।
+
+— শেষ।

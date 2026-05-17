@@ -32,6 +32,29 @@ import TryIt from '../../components/TryIt.astro';
 
 এই scope ছোট কিন্তু realistic — তোমাদের actual project-এর pattern এর মতো।
 
+## পুরো architecture এক ছবিতে
+
+```mermaid
+flowchart TB
+    V[TodosView] -->|action| TF[TodosFeature]
+    TF -->|state.todos| V
+    TF -.->|present| EF[EditTodoFeature]
+    EF -->|delegate save| TF
+    TF -->|inject| SC[(TodoStorageClient)]
+    SC -->|liveValue| FS[(Disk JSON)]
+    SC -->|testValue| FK[(Fake data)]
+    TF -->|inject| ID[uuid generator]
+
+    style V fill:#FFE9C7,stroke:#8B5A2B
+    style TF fill:#E0F0D7,stroke:#5C8A4E
+    style EF fill:#E0F0D7,stroke:#5C8A4E
+    style SC fill:#EAE6F8,stroke:#6E5BC4
+    style FS fill:#FFF8EE,stroke:#6B6259
+    style FK fill:#FFF8EE,stroke:#6B6259
+```
+
+Parent (TodosFeature) → Child (EditTodoFeature) presentation। Dependency দু'টা — storage আর uuid। View শুধু parent-এর সাথে কথা বলে।
+
 ## ১. Model
 
 ```swift

@@ -1,0 +1,74 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const terms: { en: string; bn: string; def: string; chapter?: string }[] = [
+  { en: 'State', bn: 'বোর্ড / state', def: 'একটা feature-এর সব data এক জায়গায়। struct, Equatable, @ObservableState।', chapter: '03' },
+  { en: 'Action', bn: 'অর্ডার / action', def: 'যা কিছু হতে পারে — তার exhaustive তালিকা। enum হিসেবে declare।', chapter: '03' },
+  { en: 'Reducer', bn: 'মামা / reducer', def: '(state, action) → (state, effect)। pure function, state mutate করে।', chapter: '03' },
+  { en: 'Store', bn: 'পুরো স্টল / store', def: 'State + Reducer-এর container। View এর সাথে কাজ করে।', chapter: '03' },
+  { en: 'Effect', bn: 'ছোট ভাই / effect', def: 'বাইরের async কাজ — API, timer, file। .run { ... } দিয়ে শুরু।', chapter: '03' },
+  { en: '@Reducer', bn: '@Reducer macro', def: 'Feature struct-কে TCA Reducer-এ পরিণত করে। boilerplate কমায়।', chapter: '04' },
+  { en: '@ObservableState', bn: '@ObservableState macro', def: 'State struct-কে SwiftUI-র সাথে observable করে। WithViewStore লাগে না।', chapter: '04' },
+  { en: '.run', bn: '.run effect', def: 'Async block run করার জন্য effect — { send in ... }। শেষে catch দিয়ে error handle।', chapter: '05' },
+  { en: '.none', bn: '.none', def: 'কোনো effect নেই। reducer-এর সবচেয়ে common return।', chapter: '04' },
+  { en: 'Scope', bn: 'Scope', def: 'Parent reducer-এ child reducer-কে যুক্ত করার tool। state keypath + action keypath দিতে হয়।', chapter: '06' },
+  { en: '@Presents', bn: '@Presents', def: 'Optional child state-কে present-যোগ্য বানায়। sheet, popover, alert-এর জন্য।', chapter: '07' },
+  { en: 'PresentationAction', bn: 'PresentationAction<...>', def: 'Presented child-এর action wrap করে — .presented(action) আর .dismiss।', chapter: '07' },
+  { en: '.ifLet', bn: '.ifLet', def: 'Parent reducer-এ optional child state থাকলে child reducer চালানোর জন্য।', chapter: '07' },
+  { en: 'Destination enum', bn: 'Destination enum', def: 'একাধিক destination compile-time-এ exclusive রাখতে @Reducer enum হিসেবে।', chapter: '07' },
+  { en: '@Dependency', bn: '@Dependency', def: 'Reducer-এ বাইরের জিনিস (API, date, uuid) inject করার property wrapper।', chapter: '08' },
+  { en: 'DependencyKey', bn: 'DependencyKey', def: 'Client কে liveValue / previewValue / testValue দিয়ে DependencyValues-এ register।', chapter: '08' },
+  { en: 'liveValue', bn: 'liveValue', def: 'Production environment-এ যে real implementation use হবে।', chapter: '08' },
+  { en: 'testValue', bn: 'testValue', def: 'Test-এ default — সাধারণত unimplemented() — test-এ override করতে force করে।', chapter: '08' },
+  { en: 'TestStore', bn: 'TestStore', def: 'Test-এ feature চালানোর store — exhaustive state assertion force করে।', chapter: '09' },
+  { en: 'store.receive', bn: 'store.receive', def: 'Effect থেকে আসা action receive করতে — `store.receive(\\.actionCase) { ... }`।', chapter: '09' },
+  { en: 'BindableAction', bn: 'BindableAction', def: 'TextField/Toggle-এ direct state binding-এর জন্য Action enum-এর protocol।', chapter: '07' },
+  { en: 'BindingReducer', bn: 'BindingReducer()', def: 'BindableAction-এর binding case handle করার জন্য built-in reducer।', chapter: '07' },
+  { en: 'delegate action', bn: 'delegate action', def: 'Child থেকে parent-কে event জানানোর convention — child action enum-এ ভেতরে।', chapter: '07' },
+  { en: 'unidirectional', bn: 'unidirectional flow', def: 'Data এক দিকেই প্রবাহিত — View → Action → Reducer → State → View।', chapter: '01' },
+  { en: 'MVVM', bn: 'MVVM', def: 'Model-View-ViewModel — Apple-এর recommended pattern, কিন্তু structure user-defined।', chapter: '02' },
+];
+
+const sorted = [...terms].sort((a, b) => a.en.localeCompare(b.en));
+---
+<Layout title="শব্দার্থ" description="TCA-র সব technical শব্দের বাংলা মানে আর সংক্ষিপ্ত ব্যাখ্যা।">
+  <article class="max-w-3xl mx-auto px-4 py-12 prose-bn">
+    <header class="mb-10">
+      <p class="text-[rgb(var(--primary))] font-bold text-sm uppercase tracking-widest mb-2">শব্দার্থ</p>
+      <h1 class="text-3xl md:text-4xl font-bold mb-3">শব্দ এবং তাদের মানে</h1>
+      <p class="text-[rgb(var(--text-muted))] text-lg">TCA-র সব technical শব্দের সংক্ষিপ্ত পরিচয়। কোন অধ্যায়ে details — পাশে link।</p>
+    </header>
+
+    <div class="not-prose grid gap-3">
+      {sorted.map(term => (
+        <div class="rounded-xl border border-[rgb(var(--border))] bg-[rgb(var(--surface))] p-4 hover:border-[rgb(var(--primary))]">
+          <div class="flex flex-wrap items-baseline gap-x-3 gap-y-1 mb-1">
+            <code class="font-mono text-[rgb(var(--primary))] font-bold">{term.en}</code>
+            <span class="text-sm text-[rgb(var(--text-muted))]">{term.bn}</span>
+            {term.chapter && (
+              <a href={`/chapters/${[
+                '00-shuru-korar-age',
+                '01-cha-stole-swagatam',
+                '02-tca-ki-mvvm-er-songe-parthokyo',
+                '03-panch-bondhur-porichoy',
+                '04-prothom-counter-app',
+                '05-side-effect-api-call',
+                '06-duita-feature-ekshathe',
+                '07-navigation',
+                '08-dependencies',
+                '09-testing',
+                '10-kokhon-tca-kokhon-na',
+                '11-chhoto-real-project',
+                '12-erpor-kothay-jabe',
+              ][parseInt(term.chapter)]}`}
+                 class="ml-auto text-xs text-[rgb(var(--accent))] no-underline hover:underline">
+                অধ্যায় {term.chapter} →
+              </a>
+            )}
+          </div>
+          <p class="text-[rgb(var(--text))] m-0">{term.def}</p>
+        </div>
+      ))}
+    </div>
+  </article>
+</Layout>

@@ -1,0 +1,73 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="কেন এই সাইট" description="এই site কেন বানানো হলো, কাদের জন্য, আর কী কী ভাবনা পেছনে।">
+  <article class="max-w-3xl mx-auto px-4 py-12 prose-bn">
+    <header class="mb-10">
+      <p class="text-[rgb(var(--primary))] font-bold text-sm uppercase tracking-widest mb-2">কেন এই সাইট</p>
+      <h1 class="text-3xl md:text-4xl font-bold">গল্প-টা একটু বলি</h1>
+    </header>
+
+    <p>
+      TCA শেখার জন্য Google করলে যা পাবে — অনেক ভালো ইংরেজি tutorial আছে। কিন্তু সমস্যা দুটো।
+    </p>
+
+    <p>
+      <strong>প্রথমত</strong>, ইংরেজি tutorial-গুলো ধরে নেয় তুমি Redux, Elm, বা functional programming আগে থেকে জানো। *"Unidirectional data flow"*, *"reducer pattern"* — এই শব্দগুলো explain না করে use হয়। MVVM থেকে আসা Swift developer-দের কাছে এই jargon অপরিচিত।
+    </p>
+
+    <p>
+      <strong>দ্বিতীয়ত</strong>, যেগুলো Bangla-তে আছে, সেগুলো বেশিরভাগ TCA-র <em>পুরনো API</em>-তে লেখা — `Reducer&lt;State, Action, Environment&gt;`, `.pullback`, `WithViewStore`। ২০২৪-এর পর সেই API আর use হয় না। কেউ পুরনো guide দেখে শিখলে — production code-এ এসে মেলাতে পারে না।
+    </p>
+
+    <p>
+      তাই এই site। একটাই উদ্দেশ্য —
+    </p>
+
+    <blockquote>
+      MVVM/SwiftUI জানা একজন Bengali developer যাতে ৬-৮ ঘণ্টায় modern TCA-তে confident হয়ে ওঠে। ভয় না, গল্প করে।
+    </blockquote>
+
+    <h2>যা এই site-এ আছে</h2>
+
+    <ul>
+      <li>১২টা অধ্যায় — গল্প, কোড, diagram, exercise।</li>
+      <li>প্রতিটা কোড সাম্প্রতিক TCA API (1.5+) — modern macro syntax।</li>
+      <li>চা স্টলের metaphor — পুরো site জুড়ে। MVVM থেকে আসা মনে এটা attach হবে দ্রুত।</li>
+      <li>MVVM-এর পাশাপাশি TCA — পার্থক্য দু'কলামে।</li>
+      <li>একটা ছোট real project (Todo app) — যেখানে সব concept একসাথে।</li>
+    </ul>
+
+    <h2>যা এই site-এ নেই</h2>
+
+    <ul>
+      <li>পুরনো API (Pre-1.0) — সচেতন ভাবে এড়িয়েছি।</li>
+      <li>Advanced topics — <code>@Shared</code>, long-running effects, complex animation। এগুলো foundation-এর পর।</li>
+      <li>Combine-যুগের TCA pattern — যেহেতু modern TCA Swift Concurrency-তে চলে।</li>
+    </ul>
+
+    <h2>Tech behind the site</h2>
+
+    <p>
+      পুরো site টা <a href="https://astro.build" target="_blank" rel="noopener">Astro</a>-তে বানানো — content-first static site generator। Tailwind CSS-এ styled, Shiki দিয়ে syntax highlighted, Pagefind দিয়ে searched। Bengali fonts (Hind Siliguri) self-hosted — কোনো third-party CDN call নেই।
+    </p>
+
+    <h2>Source code, contribute</h2>
+
+    <p>
+      Site-এর source code public। কোথাও typo দেখলে — বা Bangla আরো natural করতে চাইলে — pull request পাঠাও। এই project যেমন একজনের শখ — তেমনই open।
+    </p>
+
+    <h2>কোনো ত্রুটি পেলে</h2>
+
+    <p>
+      কোনো ভাষাগত খটমট, কোনো code-এ bug, কোনো diagram-এ ভুল — অবশ্যই জানাও। তোমার feedback-এই পরের generation-এর জন্য site improve হবে।
+    </p>
+
+    <p style="text-align: center; margin-top: 4em;">
+      <a href="/chapters/00-shuru-korar-age" class="inline-block px-5 py-3 bg-[rgb(var(--primary))] text-white no-underline rounded-lg font-bold">
+        চলো শুরু করি →
+      </a>
+    </p>
+  </article>
+</Layout>

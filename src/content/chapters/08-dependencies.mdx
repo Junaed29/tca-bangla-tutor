@@ -270,6 +270,28 @@ let store = TestStore(initialState: ...) {
 
 `uuid = .incrementing` মানে — প্রতিবার `uuid()` call করলে `00000000-0000-0000-0000-000000000000`, `00000000-0000-0000-0000-000000000001`, … predictable। Test-এ আমরা ঠিক জানি কোন uuid আসবে।
 
+## এক ছবিতে — Production vs Test
+
+```mermaid
+flowchart LR
+    subgraph "Production"
+    F1[Feature] -->|"@Dependency<br/>(\.numberFact)"| LV[liveValue<br/>real URLSession]
+    LV -->|"network"| API[(numbersapi.com)]
+    end
+
+    subgraph "Test"
+    F2[Feature] -->|"@Dependency<br/>(\.numberFact)"| TV[testValue<br/>controllable]
+    TV -->|"হাতে তৈরি data"| Fake[(test-এর fake data)]
+    end
+
+    style F1 fill:#E0F0D7,stroke:#5C8A4E
+    style F2 fill:#E0F0D7,stroke:#5C8A4E
+    style LV fill:#FFE9C7,stroke:#8B5A2B
+    style TV fill:#FFE9C7,stroke:#8B5A2B
+```
+
+Feature-এর code একই। শুধু `numberFact`-এর behind কী আছে সেটা ভিন্ন।
+
 ## চা স্টলে যেমন
 
 <Callout type="tea-stall">

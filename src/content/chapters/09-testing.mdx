@@ -20,6 +20,29 @@ MVVM-এ test লেখা যে কী cumbersome — মনে আছে? Moc
 
 TCA-তে test অন্য জগৎ। কেন? কারণ Reducer **pure** — same input, same output। সব side effect dependency-তে। সব state observable। এই combination একটা ম্যাজিকাল test tool সম্ভব করে — **`TestStore`**।
 
+## পুরো TestStore flow এক নজরে
+
+```mermaid
+sequenceDiagram
+  participant T as Test code
+  participant TS as TestStore
+  participant R as Reducer
+  participant E as Effect (fake)
+
+  T->>TS: send(.action) { $0.field = X }
+  TS->>R: (state, action)
+  R-->>TS: new state + Effect
+  TS->>T: assert state == expected ✓
+  Note over TS,E: Effect fake-এ override
+  E-->>TS: send(.response)
+  T->>TS: receive(\.response) { $0.field = Y }
+  TS->>R: (state, .response)
+  R-->>TS: new state
+  TS->>T: assert state == expected ✓
+```
+
+প্রতিটা arrow-এ assertion আছে। কোনো লুকানো পরিবর্তন test-এ slip করতে পারে না।
+
 ## TestStore কী
 
 `TestStore` একটা special store, যেটা শুধু test-এ use হয়। এর কাজ —
