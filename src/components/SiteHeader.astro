@@ -76,7 +76,7 @@ import { withBase } from '../lib/url';
               load_more: 'আরও দেখো',
               search_label: 'খোঁজো',
               filters_label: 'ফিল্টার',
-              zero_results: 'কিছু পাইনি — অন্য শব্দ try করে দেখো',
+              zero_results: 'কিছু পাইনি, অন্য শব্দ try করে দেখো',
               many_results: '[COUNT] টা ফলাফল [SEARCH_TERM] -এর জন্য',
               one_result: '১ টা ফলাফল [SEARCH_TERM] -এর জন্য',
               alt_search: 'কোনো ফলাফল নেই [SEARCH_TERM]-এ, [DIFFERENT_TERM] দেখাচ্ছি',
@@ -86,7 +86,7 @@ import { withBase } from '../lib/url';
           });
         } catch (e) {
           const el = document.getElementById('search');
-          if (el) el.innerHTML = '<p style="color:rgb(var(--text-muted))">Search index এখনো build হয়নি — production build-এ কাজ করবে।</p>';
+          if (el) el.innerHTML = '<p style="color:rgb(var(--text-muted))">Search index এখনো build হয়নি, production build-এ কাজ করবে।</p>';
         }
       };
 
@@ -109,8 +109,8 @@ import { withBase } from '../lib/url';
     // Auto-hide on scroll-down, reveal on scroll-up.
     let lastY = window.scrollY;
     let ticking = false;
-    const SHOW_THRESHOLD = 6;   // px — ignore tiny jitter
-    const PINNED_UNTIL  = 80;   // px — always show near top
+    const SHOW_THRESHOLD = 6;   // px, ignore tiny jitter
+    const PINNED_UNTIL  = 80;   // px, always show near top
 
     function onScroll() {
       if (ticking) return;

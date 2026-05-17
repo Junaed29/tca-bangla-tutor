@@ -1,12 +1,12 @@
 ---
 number: "০৪"
-title: "Quest ০৪ — প্রথম জাদু: Counter app"
-subtitle: "Xcode খোলো — পাঁচ বন্ধুকে একসাথে কাজ করতে দেখি।"
+title: "Quest ০৪, প্রথম জাদু: Counter app"
+subtitle: "Xcode খোলো, পাঁচ বন্ধুকে একসাথে কাজ করতে দেখি।"
 part: "হাতে কলমে"
-partLabel: "PART ২ — হাতে কলমে"
+partLabel: "PART ২, হাতে কলমে"
 order: 4
 readingTime: "১৪ মিনিট পড়ার সময়"
-summary: "Counter feature — TCA-র hello-world। State, Action, Reducer, Store, View — প্রতিটাকে আলাদা ফাইলে রেখে ধাপে ধাপে বানাবো।"
+summary: "Counter feature, TCA-র hello-world। State, Action, Reducer, Store, View, প্রতিটাকে আলাদা ফাইলে রেখে ধাপে ধাপে বানাবো।"
 ---
 
 import Callout from '../../components/Callout.astro';
@@ -18,11 +18,11 @@ import TryIt from '../../components/TryIt.astro';
 চলো `TCAPlayground/Chapter04_Counter/` folder-এ একটা নতুন Swift file বানাই। File → New → File → Swift File, নাম দাও `CounterFeature.swift`, target হিসেবে `TCAPlayground` select করো।
 </Callout>
 
-হাতে কলমে শুরু। কোডটা বড় না — ৪০-৪৫ লাইনের একটা feature। কিন্তু এই app থেকে তুমি ৭০% TCA জিনিস শিখে ফেলবে। বড় feature-এর pattern এই সাবধান সাবধান লিখলে — পরে ১০ গুণ বড় কিছু লিখতেও same pattern।
+হাতে কলমে শুরু। কোডটা বড় না, ৪০-৪৫ লাইনের একটা feature। কিন্তু এই app থেকে তুমি ৭০% TCA জিনিস শিখে ফেলবে। বড় feature-এর pattern এই সাবধান সাবধান লিখলে, পরে ১০ গুণ বড় কিছু লিখতেও same pattern।
 
 ## লক্ষ্য
 
-একটা screen — মাঝে একটা সংখ্যা (`0` দিয়ে শুরু)। দুটো button: **+** আর **−**। Tap করলে সংখ্যা বদলায়। ব্যস।
+একটা screen, মাঝে একটা সংখ্যা (`0` দিয়ে শুরু)। দুটো button: **+** আর **−**। Tap করলে সংখ্যা বদলায়। ব্যস।
 
 ```mermaid
 sequenceDiagram
@@ -39,35 +39,35 @@ sequenceDiagram
   V->>U: "1" দেখায়
 ```
 
-এই sequence-টা বার বার চলবে — increment, decrement। Effect এই অধ্যায়ে নাই; পরের অধ্যায়ে নিয়ে আসবো।
+এই sequence-টা বার বার চলবে, increment, decrement। Effect এই অধ্যায়ে নাই; পরের অধ্যায়ে নিয়ে আসবো।
 
-## ১. Feature — State + Action + Reducer
+## ১. Feature, State + Action + Reducer
 
-`CounterFeature.swift`-এ পুরোটা একসাথে দাও —
+`CounterFeature.swift`-এ পুরোটা একসাথে দাও:
 
 ```swift
 import ComposableArchitecture
 
-// @Reducer macro দিয়ে আমরা TCA-কে বলছি — "এটা একটা feature।"
+// @Reducer macro দিয়ে আমরা TCA-কে বলছি, "এটা একটা feature।"
 @Reducer
 struct CounterFeature {
 
-    // State — feature-এর সব data এক জায়গায়।
-    // @ObservableState SwiftUI-র জন্য — view auto-update হবে।
+    // State, feature-এর সব data এক জায়গায়।
+    // @ObservableState SwiftUI-র জন্য, view auto-update হবে।
     @ObservableState
     struct State: Equatable {
         var count = 0
     }
 
-    // Action — কী কী হতে পারে।
+    // Action, কী কী হতে পারে।
     // আপাতত শুধু দুটো user action।
     enum Action {
         case incrementTapped
         case decrementTapped
     }
 
-    // body — আসল logic এখানে।
-    // ReducerOf<Self> মানে — এই reducer State আর Action-এ কাজ করে।
+    // body, আসল logic এখানে।
+    // ReducerOf<Self> মানে, এই reducer State আর Action-এ কাজ করে।
     var body: some ReducerOf<Self> {
         Reduce { state, action in
             switch action {
@@ -85,21 +85,21 @@ struct CounterFeature {
 }
 ```
 
-এই ৩০ লাইনে যা যা ঘটল —
+এই ৩০ লাইনে যা যা ঘটল:
 
-- `@Reducer` macro — boilerplate কমিয়ে দেয়। আগে আমাদের `var body` আর কিছু extra type signature লিখতে হতো; এখন macro নিজে সামলায়।
-- `State: Equatable` — দরকার। কারণ SwiftUI compare করে দেখে state বদলেছে কিনা।
-- `enum Action` — exhaustive। `switch action` এ যদি কোনো case miss করো, Swift compiler পাকড়ে দেবে — এটাই বড় advantage।
-- `Reduce { state, action in ... }` — মামা। ভিতরে `state` mutable। সব decision এখানে।
-- `.none` — *"বাইরের কাজ নেই, কাজ শেষ"*।
+- `@Reducer` macro, boilerplate কমিয়ে দেয়। আগে আমাদের `var body` আর কিছু extra type signature লিখতে হতো; এখন macro নিজে সামলায়।
+- `State: Equatable`, দরকার। কারণ SwiftUI compare করে দেখে state বদলেছে কিনা।
+- `enum Action`, exhaustive। `switch action` এ যদি কোনো case miss করো, Swift compiler পাকড়ে দেবে, এটাই বড় advantage।
+- `Reduce { state, action in ... }`, মামা। ভিতরে `state` mutable। সব decision এখানে।
+- `.none`, *"বাইরের কাজ নেই, কাজ শেষ"*।
 
 <Callout type="tip" title="@ObservableState কেন">
-পুরনো TCA-তে view-তে `WithViewStore { viewStore in ... }` wrapper দিয়ে state দেখতে হতো — দু'বার closure, এক্সট্রা boilerplate। `@ObservableState` macro এসে এই ব্যাপারটা সহজ করে দিয়েছে — এখন view-তে সরাসরি `store.count`, `store.fact` access করা যায়, কোনো wrapper লাগে না। ধন্যবাদ Apple-এর Observation framework-কে — TCA সেটা দারুণভাবে use করেছে।
+পুরনো TCA-তে view-তে `WithViewStore { viewStore in ... }` wrapper দিয়ে state দেখতে হতো, দু'বার closure, এক্সট্রা boilerplate। `@ObservableState` macro এসে এই ব্যাপারটা সহজ করে দিয়েছে, এখন view-তে সরাসরি `store.count`, `store.fact` access করা যায়, কোনো wrapper লাগে না। ধন্যবাদ Apple-এর Observation framework-কে, TCA সেটা দারুণভাবে use করেছে।
 </Callout>
 
 ## ২. View
 
-এবার `CounterView.swift` (same folder-এ) —
+এবার `CounterView.swift` (same folder-এ):
 
 ```swift
 import SwiftUI
@@ -111,7 +111,7 @@ struct CounterView: View {
 
     var body: some View {
         VStack(spacing: 30) {
-            // State directly access — @ObservableState এর জাদু।
+            // State directly access, @ObservableState এর জাদু।
             Text("\(store.count)")
                 .font(.system(size: 72, weight: .bold, design: .rounded))
                 .monospacedDigit()
@@ -139,11 +139,11 @@ struct CounterView: View {
 }
 ```
 
-লক্ষ্য করো —
+লক্ষ্য করো:
 
-- `let store: StoreOf<CounterFeature>` — view শুধু store-এর reference রাখছে। সে নিজে count maintain করছে না।
-- `store.count` সরাসরি — `WithViewStore` লাগেনি।
-- `store.send(.incrementTapped)` — action পাঠানো। View নিজে কাউন্ট বাড়ায় না, শুধু *"মামাকে message পাঠাল"*।
+- `let store: StoreOf<CounterFeature>`, view শুধু store-এর reference রাখছে। সে নিজে count maintain করছে না।
+- `store.count` সরাসরি, `WithViewStore` লাগেনি।
+- `store.send(.incrementTapped)`, action পাঠানো। View নিজে কাউন্ট বাড়ায় না, শুধু *"মামাকে message পাঠাল"*।
 
 <MvvmVsTca>
 <Fragment slot="mvvm">
@@ -176,11 +176,11 @@ View → Action পাঠাচ্ছে। কোনো method call না। S
 </Fragment>
 </MvvmVsTca>
 
-পার্থক্য সূক্ষ্ম কিন্তু গুরুত্বপূর্ণ। MVVM-এ tap হলে কী হবে সেটা view-ই *জানে* (`increment()` call করতে হবে)। TCA-তে view *জানে না* — সে শুধু বলে *"+ button tapped"*, বাকিটা Reducer-এর সিদ্ধান্ত।
+পার্থক্য সূক্ষ্ম কিন্তু গুরুত্বপূর্ণ। MVVM-এ tap হলে কী হবে সেটা view-ই *জানে* (`increment()` call করতে হবে)। TCA-তে view *জানে না*, সে শুধু বলে *"+ button tapped"*, বাকিটা Reducer-এর সিদ্ধান্ত।
 
-## ৩. App entry — Store বানানো
+## ৩. App entry, Store বানানো
 
-`TCAPlaygroundApp.swift`-এ এই counter-কে list-এ add করো —
+`TCAPlaygroundApp.swift`-এ এই counter-কে list-এ add করো:
 
 ```swift
 import SwiftUI
@@ -192,10 +192,10 @@ struct TCAPlaygroundApp: App {
         WindowGroup {
             NavigationStack {
                 List {
-                    Section("Part ২ — হাতে কলমে") {
+                    Section("Part ২, হাতে কলমে") {
 
-                        NavigationLink("০৪ — Counter") {
-                            // Store এখানেই তৈরি হয় — এক বার, top-level-এ।
+                        NavigationLink("০৪, Counter") {
+                            // Store এখানেই তৈরি হয়, এক বার, top-level-এ।
                             CounterView(
                                 store: Store(
                                     initialState: CounterFeature.State()
@@ -214,17 +214,17 @@ struct TCAPlaygroundApp: App {
 }
 ```
 
-দুটো জিনিস লক্ষ্য করো —
+দুটো জিনিস লক্ষ্য করো:
 
-১। **Store top-level-এ তৈরি।** App entry-তে এক বার তৈরি — সারা lifetime একই store ব্যবহার হবে এই feature-এর জন্য। তুমি প্রতি tap-এ নতুন store বানাও না।
+১। **Store top-level-এ তৈরি।** App entry-তে এক বার তৈরি, সারা lifetime একই store ব্যবহার হবে এই feature-এর জন্য। তুমি প্রতি tap-এ নতুন store বানাও না।
 
-২। **Trailing closure দিয়ে Reducer।** `Store(initialState: ...) { CounterFeature() }` — closure-এর ভেতরে reducer instance। এটা TCA-র convention।
+২। **Trailing closure দিয়ে Reducer।** `Store(initialState: ...) { CounterFeature() }`, closure-এর ভেতরে reducer instance। এটা TCA-র convention।
 
-⌘R চাপো। চলবে। **+** দু-তিন বার tap করো — সংখ্যা বাড়ছে। **−** চাপো — কমছে।
+⌘R চাপো। চলবে। **+** দু-তিন বার tap করো, সংখ্যা বাড়ছে। **−** চাপো, কমছে।
 
 🎉 প্রথম TCA app চলছে।
 
-<TeaStallScene caption="Counter app-এর scope-এ স্টলের চিত্র — বোর্ডে শুধু একটা সংখ্যা, কাস্টমার দুই ধরনের অর্ডার দিতে পারে, মামা শুধু সংখ্যা বাড়ায়/কমায়। ছোট ভাইয়ের দরকার এখনো হয়নি।" highlight={null} />
+<TeaStallScene caption="Counter app-এর scope-এ স্টলের চিত্র, বোর্ডে শুধু একটা সংখ্যা, কাস্টমার দুই ধরনের অর্ডার দিতে পারে, মামা শুধু সংখ্যা বাড়ায়/কমায়। ছোট ভাইয়ের দরকার এখনো হয়নি।" highlight={null} />
 
 ## যা শিখেছ এই অধ্যায়ে
 
@@ -233,12 +233,12 @@ struct TCAPlaygroundApp: App {
 - View শুধু `store.send(...)` করছে, state-এ সরাসরি লেখা যাচ্ছে না।
 - Store top-level-এ এক বার তৈরি।
 
-এই pattern বদলায় না। ১০০ feature বানালেও — same skeleton, same flow।
+এই pattern বদলায় না। ১০০ feature বানালেও, same skeleton, same flow।
 
 ## চা স্টলে যেমন
 
 <Callout type="tea-stall">
-এই app-এ মামার কাজ সহজ — কাস্টমার বলল *"+1"*, মামা বোর্ডে এক বাড়িয়ে দিল। বাইরের কেউ লাগেনি — ছোট ভাই বাজার যায়নি, kettle গরম করতে হয়নি। `return .none` মানে *"আমার এই অর্ডার সামলাতে বাইরের কারো দরকার নেই"*।
+এই app-এ মামার কাজ সহজ, কাস্টমার বলল *"+1"*, মামা বোর্ডে এক বাড়িয়ে দিল। বাইরের কেউ লাগেনি, ছোট ভাই বাজার যায়নি, kettle গরম করতে হয়নি। `return .none` মানে *"আমার এই অর্ডার সামলাতে বাইরের কারো দরকার নেই"*।
 </Callout>
 
 ## নিজে চেষ্টা করো
@@ -248,7 +248,7 @@ struct TCAPlaygroundApp: App {
 
 হিন্ট: Action-এ একটা নতুন case (`.resetTapped`), Reducer-এ সেটা handle করো (`state.count = 0`), View-এ আরেকটা button।
 
-২। Count কখনো **negative** হতে দেবে না — `decrementTapped` action এলে যদি `state.count == 0` হয়, কিছু করো না।
+২। Count কখনো **negative** হতে দেবে না, `decrementTapped` action এলে যদি `state.count == 0` হয়, কিছু করো না।
 
 হিন্ট: `state.count > 0` চেক করো।
 
@@ -319,9 +319,9 @@ HStack {
 </Callout>
 
 <Callout type="checkpoint">
-তুমি এইমাত্র তোমার প্রথম TCA app চালালে। State আলাদা, Action enum, Reducer-এ decision, Store top-level-এ। এটাই pattern — বদলাবে না।
+তুমি এইমাত্র তোমার প্রথম TCA app চালালে। State আলাদা, Action enum, Reducer-এ decision, Store top-level-এ। এটাই pattern, বদলাবে না।
 </Callout>
 
 <Callout type="level-up">
-🎉 **Level Up!** তুমি এখন একটা পুরো feature-এর skeleton নিজে দাঁড়াতে পারো। চা-টা শেষ করে পরের quest-এ চলো — এবার ছোট ভাই করিম-কে কাজে লাগাবো।
+🎉 **Level Up!** তুমি এখন একটা পুরো feature-এর skeleton নিজে দাঁড়াতে পারো। চা-টা শেষ করে পরের quest-এ চলো, এবার ছোট ভাই করিম-কে কাজে লাগাবো।
 </Callout>
