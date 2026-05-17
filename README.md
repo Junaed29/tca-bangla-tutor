@@ -1,6 +1,6 @@
 # 🍵 TCA বাংলায় — The Composable Architecture tutorial in Bengali
 
-MVVM/SwiftUI থেকে আসা Bengali developer-দের জন্য একটা গল্প-based, modern TCA tutorial site। ১২টা অধ্যায়, একটা চা স্টলের metaphor, পুরোটাই TCA-র সাম্প্রতিক (1.5+) macro-based API-তে।
+MVVM/SwiftUI থেকে আসা Bengali developer-দের জন্য একটা game-flavored, গল্প-based, modern TCA tutorial site। ১৪টা quest, একটা চা স্টলের metaphor, পুরোটাই TCA-র সাম্প্রতিক (1.5+) macro-based API-তে। শেষে bug-শিকারের রাত আর একটা সত্যিকারের project (with tests)।
 
 ---
 
