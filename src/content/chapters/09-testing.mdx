@@ -1,0 +1,346 @@
+---
+number: "০৯"
+title: "Testing — TCA-র সবচেয়ে বড় উপহার"
+subtitle: "TestStore — যে force করে তুমি প্রতিটা state mutation assert করো।"
+part: "গভীরে"
+partLabel: "PART ৩ — গভীরে"
+order: 9
+readingTime: "১৬ মিনিট পড়ার সময়"
+summary: "TestStore কীভাবে কাজ করে, কেন এটা MVVM-এর test-এর চেয়ে অনেক ভালো। Synchronous test, async test, dependency override — সব এক জায়গায়।"
+---
+
+import Callout from '../../components/Callout.astro';
+import TryIt from '../../components/TryIt.astro';
+
+<Callout type="tip" title="কোথায় code লিখবে">
+চলো `TCAPlaygroundTests/` folder-এ (Xcode auto-create করে দিয়েছে) নতুন একটা Swift test file বানাই — `Chapter09_TestingTests.swift`। যদি test target না থাকে, File → New → Target → Unit Testing Bundle দিয়ে তৈরি করো।
+</Callout>
+
+MVVM-এ test লেখা যে কী cumbersome — মনে আছে? Mock object, expectation, fulfillment, `XCTestExpectation.wait(for:)` — দশ লাইন test লিখতে গিয়ে চল্লিশ লাইন boilerplate।
+
+TCA-তে test অন্য জগৎ। কেন? কারণ Reducer **pure** — same input, same output। সব side effect dependency-তে। সব state observable। এই combination একটা ম্যাজিকাল test tool সম্ভব করে — **`TestStore`**।
+
+## TestStore কী
+
+`TestStore` একটা special store, যেটা শুধু test-এ use হয়। এর কাজ —
+
+১। Action send করো।
+২। সাথে সাথে assert করো — state কী হওয়া উচিত।
+৩। যদি একটা mismatch থাকে — test fail।
+৪। যদি কোনো action emit হয় (Effect থেকে) যেটা তুমি receive করোনি — test fail।
+৫। যদি কোনো assertion করো যেটা মেলে না — test fail।
+
+মূল বার্তা — **তুমি যা ঘটেছে তার exhaustive description লিখতে বাধ্য।** তাহলেই test pass হবে।
+
+এটা frustrating মনে হতে পারে শুরুতে, কিন্তু আসলে এটাই magic — তুমি ভুল করে কোনো state change miss করো না।
+
+## চলো একটা সহজ test
+
+আগের `CounterFeature`-টা test করি।
+
+```swift
+// Chapter09_TestingTests.swift
+import ComposableArchitecture
+import Testing
+@testable import TCAPlayground
+
+@MainActor
+struct CounterFeatureTests {
+
+    @Test
+    func incrementIncreasesCount() async {
+        // ১। Store বানাও।
+        let store = TestStore(initialState: CounterFeature.State()) {
+            CounterFeature()
+        }
+
+        // ২। Action send করো, expected state mutation describe করো।
+        await store.send(.incrementTapped) {
+            $0.count = 1
+        }
+    }
+}
+```
+
+পাঁচ লাইনের test। কী হচ্ছে এখানে —
+
+- `TestStore` initial state `count = 0` দিয়ে শুরু।
+- `await store.send(.incrementTapped) { $0.count = 1 }` — *"এই action পাঠাচ্ছি; পাঠানোর পর state-এর count হবে 1।"*
+- যদি reducer accidentally `count -= 1` করে দেয় — test fail, কারণ assertion false।
+- যদি `count` আদৌ change না হয় — test fail।
+- যদি `count = 2` হয়ে যায় — test fail।
+
+এই strict, exhaustive nature-ই TCA test-এর সৌন্দর্য।
+
+<Callout type="tip" title="Swift Testing vs XCTest">
+এই উদাহরণে আমরা নতুন **Swift Testing** framework use করেছি (`@Test`, `#expect`)। তুমি যদি পুরনো XCTest-এ থাকো, এটাও কাজ করে — শুধু `func testIncrement() async { ... }` লিখো `XCTestCase` class-এর ভেতরে। TestStore-এর API একই।
+</Callout>
+
+## আরো assertions
+
+```swift
+@Test
+func incrementMultipleTimes() async {
+    let store = TestStore(initialState: CounterFeature.State()) {
+        CounterFeature()
+    }
+
+    await store.send(.incrementTapped) {
+        $0.count = 1
+    }
+    await store.send(.incrementTapped) {
+        $0.count = 2
+    }
+    await store.send(.decrementTapped) {
+        $0.count = 1
+    }
+}
+```
+
+প্রতিটা step-এ state describe করছি। যদি একটা step ভুল হয়, test report exact line দেখাবে।
+
+## Effect-যুক্ত test — async জগতে
+
+আগের NumberFact feature test করি। এখানে দেখবো dependency কীভাবে inject হয় test-এ।
+
+```swift
+@MainActor
+struct NumberFactFeatureTests {
+
+    @Test
+    func fetchFactSuccess() async {
+        let store = TestStore(initialState: NumberFactFeature.State(count: 42)) {
+            NumberFactFeature()
+        } withDependencies: {
+            // ↓ test-এ fake client।
+            $0.numberFact = NumberFactClient(
+                fetch: { _ in "42 is the answer." }
+            )
+        }
+
+        // ১। User button-এ tap করল।
+        await store.send(.factButtonTapped) {
+            $0.isLoading = true
+        }
+
+        // ২। Effect ফিরে আসছে — receive করো।
+        await store.receive(\.factResponse) {
+            $0.isLoading = false
+            $0.fact = "42 is the answer."
+        }
+    }
+}
+```
+
+দুটো নতুন ব্যাপার —
+
+### `withDependencies:` block
+
+TestStore creation-এ এই block দিয়ে dependency override। এখানে আমরা `numberFact.fetch` কে force করেছি — সবসময় return করবে `"42 is the answer."`। আসল network নেই।
+
+### `store.receive(\.factResponse) { ... }`
+
+Reducer-এ `.run` Effect ফেরাচ্ছে, যেটা শেষে `send(.factResponse(...))` করে। TestStore বলবে — *"এই action arrival expect কর; receive করার সময় state কী হওয়া উচিত — describe কর।"*
+
+`\.factResponse` হলো **case keypath** — Swift-এ enum case-এর keypath। তুমি লিখলে অর্ধেক match (`.factResponse`-এর associated value পরে আসছে)।
+
+<Callout type="warn" title="Effect এলে receive করা বাধ্যতামূলক">
+যদি Effect থেকে action আসে কিন্তু তুমি `receive(...)` না করো — TestStore fail করবে। বলবে *"একটা unhandled action আছে, এটাকে receive করো।"* এই strictness-ই TCA-র গ্যারান্টি — তুমি কোনো effect miss করতে পারবে না।
+</Callout>
+
+## Date, UUID-এর সাথে test
+
+ভাবো একটা feature যেখানে user একটা note add করে, সেটায় auto `createdAt` আর `id` যোগ হয়।
+
+```swift
+@Reducer
+struct NotesFeature {
+    @ObservableState
+    struct State: Equatable {
+        var notes: [Note] = []
+        var draft = ""
+    }
+    enum Action {
+        case draftChanged(String)
+        case addTapped
+    }
+
+    @Dependency(\.date.now) var now
+    @Dependency(\.uuid) var uuid
+
+    var body: some ReducerOf<Self> {
+        Reduce { state, action in
+            switch action {
+            case let .draftChanged(text):
+                state.draft = text
+                return .none
+
+            case .addTapped:
+                let note = Note(
+                    id: uuid(),
+                    createdAt: now,
+                    text: state.draft
+                )
+                state.notes.append(note)
+                state.draft = ""
+                return .none
+            }
+        }
+    }
+}
+
+struct Note: Equatable, Identifiable {
+    let id: UUID
+    let createdAt: Date
+    var text: String
+}
+```
+
+Test:
+
+```swift
+@MainActor
+struct NotesFeatureTests {
+
+    @Test
+    func addNoteAttachesTimeAndID() async {
+        let store = TestStore(initialState: NotesFeature.State(draft: "Hello")) {
+            NotesFeature()
+        } withDependencies: {
+            $0.uuid = .incrementing
+            $0.date.now = Date(timeIntervalSince1970: 1_700_000_000)
+        }
+
+        await store.send(.addTapped) {
+            $0.notes = [
+                Note(
+                    id: UUID(0),    // .incrementing-এ first uuid: 00000000-...-0000
+                    createdAt: Date(timeIntervalSince1970: 1_700_000_000),
+                    text: "Hello"
+                )
+            ]
+            $0.draft = ""
+        }
+    }
+}
+```
+
+`uuid = .incrementing` predictable uuid generate করে — `00...0000`, `00...0001`, ইত্যাদি। `date.now = ...` fixed time। Test reliable, repeatable।
+
+## Failure দেখো — debug শেখার জন্য
+
+যদি তুমি assertion ভুল লিখো — কেমন error আসে?
+
+```swift
+await store.send(.incrementTapped) {
+    $0.count = 5   // আসলে 1 হবে, কিন্তু 5 লিখলাম।
+}
+```
+
+TestStore বলবে —
+
+```
+A state change does not match expectation:
+
+  CounterFeature.State(
+−   count: 5
++   count: 1
+  )
+```
+
+দেখলে — exact line দেখাচ্ছে কোথায় mismatch। `−` expected, `+` actual। SwiftUI diff-এর মতো।
+
+আর যদি কোনো effect-action receive না করো —
+
+```
+The store received 1 unexpected action after this one:
+
+Unhandled actions: [
+  [0]: NumberFactFeature.Action.factResponse(...)
+]
+```
+
+মানে — *"এই action এসেছিল, তুমি receive করোনি।"*
+
+## Non-exhaustive testing — যখন strictness বেশি লাগে
+
+কখনো কখনো তুমি পুরো state বার বার describe করতে চাও না — শুধু একটা specific change-এ আগ্রহী।
+
+```swift
+let store = TestStore(initialState: ...) {
+    LargeFeature()
+}
+store.exhaustivity = .off    // এখন partial assertion ok।
+
+await store.send(.someAction) {
+    $0.someField = "expected"
+    // বাকি state-এর কথা না বললেও চলবে।
+}
+```
+
+কিন্তু এটা use করো খুব selectively। Default exhaustive-ই better।
+
+## চা স্টলে যেমন
+
+<Callout type="tea-stall">
+TestStore মানে — *fake-customer* হয়ে rehearsal চালানো। আমরা মামাকে বলি *"নাও, এক কাপ চা order দিচ্ছি — দেখো তোমার বোর্ডে এই লেখাটা হওয়া উচিত।"*। মামা বোর্ডে যা লিখলো — আমরা compare করি। মেলে না? — *"না মামা, এটা ভুল হয়েছে।"* বলে test fail। মেলে? — pass।
+
+ছোট ভাই করিম-কে আমরা rehearsal-এ পাঠাই না বাজারে — fake করিম রেডি রাখি, দুধ আগে থেকেই হাতে। এটাই `withDependencies` দিয়ে fake client। মামার logic পুরোপুরি test হলো, কিন্তু network লাগেনি।
+</Callout>
+
+## কেন TCA test এতো সুন্দর
+
+MVVM test:
+
+```swift
+func testIncrement() {
+    let vm = CounterViewModel()
+    vm.increment()
+    XCTAssertEqual(vm.count, 1)
+}
+```
+
+দেখতে simple, কিন্তু —
+
+- যদি `increment()` ছাড়া অন্য কোনো side effect হয় (e.g., `vm.lastEvent = .increment`) — test catch করবে না, কারণ তুমি check করোনি।
+- Async network call থাকলে `expectation`, `fulfill`, `wait` boilerplate।
+- Mock object বানাতে protocol, init injection, holder class — ৫০ লাইনের setup।
+
+TCA test:
+
+```swift
+await store.send(.incrementTapped) {
+    $0.count = 1
+}
+```
+
+- পুরো state-এর every field check হচ্ছে — accidental side effect catch হবে।
+- Async case-এ শুধু `store.receive(...)` — কোনো boilerplate না।
+- Dependency override এক block-এ — কোনো mock class বানাতে হয়নি।
+
+এটাই magic।
+
+## নিজে চেষ্টা করো
+
+<TryIt title="তিনটা test লেখো">
+আগের counter feature-এর জন্য তিনটা test লেখো —
+
+১। দু'বার increment করে count যেন `2` হয়।
+২। `decrementTapped` কখনো count negative হতে দেয় না (যদি তুমি এই rule add করো)।
+৩। Reset action add করলে — reset করলে count `0`।
+
+প্রতিটায় expected state describe করো।
+</TryIt>
+
+## এই অধ্যায়ের সারমর্ম
+
+<Callout type="remember">
+- **TestStore** force করে exhaustive state assertion।
+- `store.send(.action) { $0.field = expected }` — sync mutation describe।
+- `store.receive(\.action) { ... }` — effect থেকে আসা action handle।
+- `withDependencies:` দিয়ে test-এ fake client/date/uuid।
+- Mismatch হলে test report exact diff দেয়।
+- Date, UUID, network — সব dependency দিয়ে control।
+</Callout>
+
+PART ৩ শেষ। তুমি এখন TCA-র সব building block জানো। পরের অধ্যায়ে আমরা practical সিদ্ধান্তে যাবো — *"কখন TCA, কখন না"*।

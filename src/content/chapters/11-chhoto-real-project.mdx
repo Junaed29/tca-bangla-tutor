@@ -1,0 +1,500 @@
+---
+number: "১১"
+title: "একটা ছোট real project — Todo app"
+subtitle: "এক জায়গায় সব আনি — State, Effect, Persistence, Navigation, Test।"
+part: "সিদ্ধান্ত"
+partLabel: "PART ৪ — সিদ্ধান্ত"
+order: 11
+readingTime: "২২ মিনিট পড়ার সময়"
+summary: "একটা ছোট কিন্তু complete Todo app — যেখানে সব বড় TCA concept এক জায়গায় কাজে লাগে। Filter, persistence, edit-screen, test — পুরোটা।"
+---
+
+import Callout from '../../components/Callout.astro';
+import TeaStallScene from '../../components/TeaStallScene.astro';
+import TryIt from '../../components/TryIt.astro';
+
+<Callout type="tip" title="কোথায় code লিখবে">
+চলো `TCAPlayground/Chapter11_TodoApp/` folder-এ পাঁচটা file বানাই — `Todo.swift`, `TodoStorageClient.swift`, `TodosFeature.swift`, `EditTodoFeature.swift`, `TodosView.swift`। শেষ একটা test file `TCAPlaygroundTests/TodosFeatureTests.swift`।
+</Callout>
+
+এতক্ষণ আমরা ছোট ছোট ৫-৬টা piece শিখেছি — counter, fact, composition, navigation, dependency, test। এই অধ্যায়ে সবগুলো একসাথে এক জায়গায়। একটা ছোট কিন্তু complete app।
+
+## লক্ষ্য
+
+একটা Todo manager —
+
+- Todo যোগ, edit, delete।
+- Mark as done।
+- Filter: All / Active / Completed।
+- App restart-এ data থেকে যায় (local storage)।
+- Edit screen — sheet-এ।
+- পুরোটার জন্য test।
+
+এই scope ছোট কিন্তু realistic — তোমাদের actual project-এর pattern এর মতো।
+
+## ১. Model
+
+```swift
+// Todo.swift
+import Foundation
+
+struct Todo: Equatable, Identifiable, Codable {
+    let id: UUID
+    var title: String
+    var isCompleted: Bool
+
+    init(id: UUID, title: String, isCompleted: Bool = false) {
+        self.id = id
+        self.title = title
+        self.isCompleted = isCompleted
+    }
+}
+```
+
+`Codable` কারণ persistence-এ JSON-এ লিখবো।
+
+## ২. Storage client — dependency
+
+```swift
+// TodoStorageClient.swift
+import ComposableArchitecture
+import Foundation
+
+struct TodoStorageClient {
+    var load: @Sendable () async throws -> [Todo]
+    var save: @Sendable ([Todo]) async throws -> Void
+}
+
+extension TodoStorageClient: DependencyKey {
+
+    static let liveValue: TodoStorageClient = {
+        let url = URL.documentsDirectory.appending(path: "todos.json")
+
+        return TodoStorageClient(
+            load: {
+                guard FileManager.default.fileExists(atPath: url.path()) else { return [] }
+                let data = try Data(contentsOf: url)
+                return try JSONDecoder().decode([Todo].self, from: data)
+            },
+            save: { todos in
+                let data = try JSONEncoder().encode(todos)
+                try data.write(to: url, options: .atomic)
+            }
+        )
+    }()
+
+    static let previewValue = TodoStorageClient(
+        load: {
+            [
+                Todo(id: UUID(), title: "চা বানাও"),
+                Todo(id: UUID(), title: "দোকানে যাও", isCompleted: true),
+            ]
+        },
+        save: { _ in }
+    )
+
+    static let testValue = TodoStorageClient(
+        load: unimplemented("TodoStorageClient.load"),
+        save: unimplemented("TodoStorageClient.save")
+    )
+}
+
+extension DependencyValues {
+    var todoStorage: TodoStorageClient {
+        get { self[TodoStorageClient.self] }
+        set { self[TodoStorageClient.self] = newValue }
+    }
+}
+```
+
+দেখো — `liveValue`-এ আসল file save, `previewValue`-এ kitchen-sink data, `testValue` unimplemented।
+
+## ৩. EditTodoFeature
+
+আগের navigation chapter-এর pattern পুনর্ব্যবহার।
+
+```swift
+// EditTodoFeature.swift
+import ComposableArchitecture
+
+@Reducer
+struct EditTodoFeature {
+    @ObservableState
+    struct State: Equatable {
+        var todo: Todo
+    }
+
+    enum Action: BindableAction {
+        case binding(BindingAction<State>)
+        case saveTapped
+        case cancelTapped
+        case delegate(Delegate)
+        enum Delegate: Equatable {
+            case save(Todo)
+            case cancel
+        }
+    }
+
+    var body: some ReducerOf<Self> {
+        BindingReducer()
+        Reduce { state, action in
+            switch action {
+            case .binding: return .none
+            case .saveTapped:
+                let trimmed = state.todo.title.trimmingCharacters(in: .whitespaces)
+                guard !trimmed.isEmpty else { return .none }
+                state.todo.title = trimmed
+                return .send(.delegate(.save(state.todo)))
+            case .cancelTapped:
+                return .send(.delegate(.cancel))
+            case .delegate:
+                return .none
+            }
+        }
+    }
+}
+```
+
+## ৪. TodosFeature — main reducer
+
+```swift
+// TodosFeature.swift
+import ComposableArchitecture
+import Foundation
+
+@Reducer
+struct TodosFeature {
+
+    enum Filter: String, CaseIterable, Equatable {
+        case all = "সব"
+        case active = "চলমান"
+        case completed = "শেষ"
+    }
+
+    @ObservableState
+    struct State: Equatable {
+        var todos: [Todo] = []
+        var filter: Filter = .all
+        var draft: String = ""
+        @Presents var editTodo: EditTodoFeature.State?
+
+        var filteredTodos: [Todo] {
+            switch filter {
+            case .all:       return todos
+            case .active:    return todos.filter { !$0.isCompleted }
+            case .completed: return todos.filter { $0.isCompleted }
+            }
+        }
+    }
+
+    enum Action: BindableAction {
+        case binding(BindingAction<State>)
+        case onAppear
+        case loadResponse([Todo])
+        case addTapped
+        case toggleCompleted(Todo.ID)
+        case deleteTodo(IndexSet)      // filteredTodos-এর index।
+        case editTapped(Todo.ID)
+        case editTodo(PresentationAction<EditTodoFeature.Action>)
+        case persistFinished                 // save complete signal।
+    }
+
+    @Dependency(\.todoStorage) var storage
+    @Dependency(\.uuid) var uuid
+
+    var body: some ReducerOf<Self> {
+        BindingReducer()
+        Reduce { state, action in
+            switch action {
+
+            case .binding:
+                return .none
+
+            case .onAppear:
+                return .run { send in
+                    let saved = (try? await storage.load()) ?? []
+                    await send(.loadResponse(saved))
+                }
+
+            case let .loadResponse(saved):
+                state.todos = saved
+                return .none
+
+            case .addTapped:
+                let trimmed = state.draft.trimmingCharacters(in: .whitespaces)
+                guard !trimmed.isEmpty else { return .none }
+                state.todos.insert(
+                    Todo(id: uuid(), title: trimmed),
+                    at: 0
+                )
+                state.draft = ""
+                return persist(state.todos)
+
+            case let .toggleCompleted(id):
+                if let idx = state.todos.firstIndex(where: { $0.id == id }) {
+                    state.todos[idx].isCompleted.toggle()
+                }
+                return persist(state.todos)
+
+            case let .deleteTodo(offsets):
+                // Filter অনুযায়ী index — actual todo লিস্টে মিলিয়ে delete।
+                let toRemove = offsets.map { state.filteredTodos[$0].id }
+                state.todos.removeAll { toRemove.contains($0.id) }
+                return persist(state.todos)
+
+            case let .editTapped(id):
+                if let todo = state.todos.first(where: { $0.id == id }) {
+                    state.editTodo = EditTodoFeature.State(todo: todo)
+                }
+                return .none
+
+            case let .editTodo(.presented(.delegate(.save(updated)))):
+                if let idx = state.todos.firstIndex(where: { $0.id == updated.id }) {
+                    state.todos[idx] = updated
+                }
+                state.editTodo = nil
+                return persist(state.todos)
+
+            case .editTodo(.presented(.delegate(.cancel))),
+                 .editTodo(.dismiss):
+                state.editTodo = nil
+                return .none
+
+            case .editTodo:
+                return .none
+
+            case .persistFinished:
+                return .none
+            }
+        }
+        .ifLet(\.$editTodo, action: \.editTodo) {
+            EditTodoFeature()
+        }
+    }
+
+    private func persist(_ todos: [Todo]) -> Effect<Action> {
+        .run { send in
+            try await storage.save(todos)
+            await send(.persistFinished)
+        }
+    }
+}
+```
+
+কোডটা বড় ঠিকই, কিন্তু একই pattern বার বার — `case ...: state বদল; effect return`। কোনো new construct নেই — শুধু আগের সবগুলো একসাথে।
+
+## ৫. View
+
+```swift
+// TodosView.swift
+import SwiftUI
+import ComposableArchitecture
+
+struct TodosView: View {
+    @Bindable var store: StoreOf<TodosFeature>
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 0) {
+                Picker("Filter", selection: $store.filter) {
+                    ForEach(TodosFeature.Filter.allCases, id: \.self) { f in
+                        Text(f.rawValue).tag(f)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .padding()
+
+                List {
+                    Section {
+                        HStack {
+                            TextField("নতুন কাজ লিখো…", text: $store.draft)
+                            Button("যোগ") { store.send(.addTapped) }
+                                .buttonStyle(.borderedProminent)
+                                .disabled(store.draft.trimmingCharacters(in: .whitespaces).isEmpty)
+                        }
+                    }
+
+                    Section {
+                        ForEach(store.filteredTodos) { todo in
+                            HStack {
+                                Button {
+                                    store.send(.toggleCompleted(todo.id))
+                                } label: {
+                                    Image(systemName: todo.isCompleted ? "checkmark.circle.fill" : "circle")
+                                        .foregroundStyle(todo.isCompleted ? Color.green : Color.secondary)
+                                }
+                                .buttonStyle(.plain)
+
+                                Text(todo.title)
+                                    .strikethrough(todo.isCompleted)
+                                    .foregroundStyle(todo.isCompleted ? .secondary : .primary)
+
+                                Spacer()
+                            }
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                store.send(.editTapped(todo.id))
+                            }
+                        }
+                        .onDelete { offsets in
+                            store.send(.deleteTodo(offsets))
+                        }
+                    }
+                }
+                .listStyle(.insetGrouped)
+            }
+            .navigationTitle("আজকের কাজ")
+            .onAppear { store.send(.onAppear) }
+            .sheet(item: $store.scope(state: \.editTodo, action: \.editTodo)) { editStore in
+                NavigationStack {
+                    EditTodoView(store: editStore)
+                }
+            }
+        }
+    }
+}
+
+struct EditTodoView: View {
+    @Bindable var store: StoreOf<EditTodoFeature>
+
+    var body: some View {
+        Form {
+            TextField("কাজের নাম", text: $store.todo.title)
+            Toggle("শেষ হয়েছে", isOn: $store.todo.isCompleted)
+        }
+        .navigationTitle("Edit")
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("বাতিল") { store.send(.cancelTapped) }
+            }
+            ToolbarItem(placement: .confirmationAction) {
+                Button("সেভ") { store.send(.saveTapped) }
+            }
+        }
+    }
+}
+```
+
+কোডটা boring-ই — কিন্তু সেটা ভালো কথা। Pattern repeat হচ্ছে।
+
+## ৬. App entry
+
+```swift
+NavigationLink("১১ — Todo app") {
+    TodosView(
+        store: Store(initialState: TodosFeature.State()) {
+            TodosFeature()
+        }
+    )
+}
+```
+
+Run করো — কাজ যোগ করো, mark করো, edit করো, delete করো। App restart করেও দেখো — list ফিরে আসে।
+
+## ৭. Test
+
+```swift
+// TodosFeatureTests.swift
+import ComposableArchitecture
+import Testing
+import Foundation
+@testable import TCAPlayground
+
+@MainActor
+struct TodosFeatureTests {
+
+    @Test
+    func addTodoInsertsAtTop() async {
+        let store = TestStore(initialState: TodosFeature.State(draft: "চা বানাও")) {
+            TodosFeature()
+        } withDependencies: {
+            $0.uuid = .incrementing
+            $0.todoStorage.save = { _ in }   // save no-op।
+        }
+
+        await store.send(.addTapped) {
+            $0.todos = [
+                Todo(id: UUID(0), title: "চা বানাও", isCompleted: false)
+            ]
+            $0.draft = ""
+        }
+        await store.receive(\.persistFinished)
+    }
+
+    @Test
+    func toggleTogglesCompletion() async {
+        let id = UUID()
+        let store = TestStore(
+            initialState: TodosFeature.State(
+                todos: [Todo(id: id, title: "test", isCompleted: false)]
+            )
+        ) {
+            TodosFeature()
+        } withDependencies: {
+            $0.todoStorage.save = { _ in }
+        }
+
+        await store.send(.toggleCompleted(id)) {
+            $0.todos[0].isCompleted = true
+        }
+        await store.receive(\.persistFinished)
+    }
+
+    @Test
+    func loadOnAppearPopulatesTodos() async {
+        let sample = [Todo(id: UUID(), title: "test")]
+        let store = TestStore(initialState: TodosFeature.State()) {
+            TodosFeature()
+        } withDependencies: {
+            $0.todoStorage.load = { sample }
+        }
+
+        await store.send(.onAppear)
+        await store.receive(\.loadResponse) {
+            $0.todos = sample
+        }
+    }
+}
+```
+
+দেখো — তিনটা test, প্রতিটা ১৫-২০ লাইন। MVVM-এ একই test লিখতে গেলে — `URLProtocol` mock বা FileManager protocol বা XCTestExpectation — প্রতিটা test ৪০-৫০ লাইন হতো।
+
+## চা স্টলে যেমন
+
+<Callout type="tea-stall">
+এই Todo app-এর state — বোর্ড। মামার চারটা কাজ — কাস্টমারের `addTapped` (নতুন অর্ডার যোগ), `toggleCompleted` (এক অর্ডার "ready" mark করা), `deleteTodo` (cancel)। আর ছোট ভাই (`storage`) — মামা প্রতিবার বোর্ড update হলে তাকে বলে *"করিম, পেছনের diary-তে লিখে রাখ।"*। App restart হলে মামা বলে *"করিম, diary-টা নিয়ে আয় — দেখি কী লেখা ছিল।"*।
+
+প্রতিটা TCA app আসলে এই চা স্টলের একটা variant। যত বড় app-ই হোক — পাঁচ বন্ধুর role একই।
+</Callout>
+
+## যা শিখলে এই project থেকে
+
+- বড় feature-এ pattern repeat হয় — boilerplate, কিন্তু predictable।
+- Persistence-ও একটা dependency, কোনো special concept না।
+- Edit screen sheet-এ — `@Presents` + `Destination` pattern।
+- Filter computed property হিসেবে — কোনো extra state নয়, derive করা।
+- Test লেখা easy যখন dependency override-যোগ্য।
+
+## নিজে চেষ্টা করো
+
+<TryIt title="তিনটা বাড়তি feature">
+১। **Today's count**: একটা প্রাপ্ত summary view — "তোমার আজকের কাজ: ৮টা, শেষ: ৫টা, বাকি: ৩টা"। Computed property।
+
+২। **Search**: filter-এর পাশে একটা search field — যা title-এ search করবে। `state.search` add করো, `filteredTodos`-এ apply।
+
+৩। **Reordering**: List-এ drag দিয়ে reorder। `.onMove`-এ একটা action পাঠাও।
+
+প্রতিটা পরিবর্তন ৫-১০ লাইনের বেশি না — যদি বেশি লাগে, pattern থেকে সরে এসেছ।
+</TryIt>
+
+## এই অধ্যায়ের সারমর্ম
+
+<Callout type="remember">
+- বড় feature মানে নতুন concept নয় — পুরনো pattern-এর repeat।
+- Persistence একটা dependency-এর মতোই — `load`/`save` closures।
+- Computed properties (`filteredTodos`) দিয়ে derived state — দু'বার store করো না।
+- Sheet edit + delegate communication = clean parent-child।
+- প্রতিটা mutation-এর জন্য one test = full coverage শীঘ্র।
+</Callout>
+
+এক অধ্যায় বাকি। শেষ অধ্যায় ছোট — কোথায় যাবে, কী পড়বে, কী practice করবে। চলো শেষ চা ঢেলে নিই।
