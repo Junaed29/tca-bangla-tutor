@@ -1,0 +1,75 @@
+---
+interface Props {
+  type?: 'tea-stall' | 'tip' | 'warn' | 'try' | 'remember';
+  title?: string;
+}
+const { type = 'tip', title } = Astro.props;
+
+const presets = {
+  'tea-stall': {
+    bg: 'rgb(var(--callout-tea))',
+    border: 'rgb(var(--primary))',
+    icon: '🍵',
+    defaultTitle: 'চা স্টলে যেমন…',
+  },
+  tip: {
+    bg: 'rgb(var(--callout-tip))',
+    border: 'rgb(var(--accent))',
+    icon: '💡',
+    defaultTitle: 'এক ঝলকে',
+  },
+  warn: {
+    bg: 'rgb(var(--callout-warn))',
+    border: '#C9772B',
+    icon: '⚠️',
+    defaultTitle: 'সাবধান',
+  },
+  try: {
+    bg: 'rgb(var(--callout-try))',
+    border: '#6E5BC4',
+    icon: '✏️',
+    defaultTitle: 'চেষ্টা করে দেখো',
+  },
+  remember: {
+    bg: 'rgb(var(--code-bg))',
+    border: 'rgb(var(--primary))',
+    icon: '📌',
+    defaultTitle: 'মনে রাখো',
+  },
+} as const;
+
+const cfg = presets[type];
+const shownTitle = title ?? cfg.defaultTitle;
+---
+<aside
+  class="not-prose my-6 rounded-xl border-l-4 px-4 py-3.5"
+  style={`background:${cfg.bg};border-left-color:${cfg.border};`}
+  role="note"
+>
+  <p class="flex items-center gap-2 m-0 mb-1.5 font-bold text-[rgb(var(--text))]">
+    <span aria-hidden="true">{cfg.icon}</span>
+    <span>{shownTitle}</span>
+  </p>
+  <div class="callout-body text-[rgb(var(--text))]">
+    <slot />
+  </div>
+</aside>
+
+<style>
+  .callout-body :global(> p:first-child) { margin-top: 0; }
+  .callout-body :global(> *:last-child) { margin-bottom: 0; }
+  .callout-body :global(p) { margin-block: 0.5em; }
+  .callout-body :global(ul), .callout-body :global(ol) {
+    margin-block: 0.5em;
+    padding-inline-start: 1.4em;
+  }
+  .callout-body :global(li) { margin-block: 0.2em; }
+  .callout-body :global(code) {
+    background: rgb(var(--surface));
+    border: 1px solid rgb(var(--border));
+    padding: 0.1em 0.4em;
+    border-radius: 5px;
+    font-size: 0.9em;
+    color: rgb(var(--primary));
+  }
+</style>

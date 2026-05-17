@@ -1,0 +1,90 @@
+---
+import '../styles/global.css';
+import { ClientRouter } from 'astro:transitions';
+import SiteHeader from '../components/SiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { SITE } from '../consts';
+
+interface Props {
+  title?: string;
+  description?: string;
+  ogImage?: string;
+}
+
+const { title, description, ogImage } = Astro.props;
+const fullTitle = title ? `${title} — ${SITE.title}` : SITE.title;
+const desc = description ?? SITE.description;
+const canonical = new URL(Astro.url.pathname, Astro.site ?? SITE.url).toString();
+---
+<!doctype html>
+<html lang="bn" dir="ltr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <meta name="description" content={desc} />
+    <meta name="theme-color" content="#FFF8EE" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#1A1714" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={canonical} />
+
+    <link rel="preload" as="font" type="font/woff2" crossorigin
+      href="/fonts/HindSiliguri-400-bengali.woff2" />
+    <link rel="preload" as="font" type="font/woff2" crossorigin
+      href="/fonts/HindSiliguri-700-bengali.woff2" />
+
+    <title>{fullTitle}</title>
+
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={desc} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    <meta name="twitter:card" content="summary" />
+
+    <script is:inline>
+      // Theme bootstrap — runs before paint to avoid flash.
+      (function() {
+        try {
+          const stored = localStorage.getItem('theme');
+          const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+          const isDark = stored ? stored === 'dark' : prefersDark;
+          document.documentElement.classList.toggle('dark', isDark);
+        } catch (e) {}
+      })();
+    </script>
+
+    <ClientRouter />
+  </head>
+  <body class="min-h-dvh flex flex-col">
+    <a href="#main" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-3 focus:py-1.5 focus:rounded focus:bg-[rgb(var(--primary))] focus:text-white">মূল কনটেন্টে যাও</a>
+
+    <SiteHeader />
+
+    <main id="main" class="flex-1 w-full">
+      <slot />
+    </main>
+
+    <SiteFooter />
+
+    <script>
+      // Theme toggle handler — wired in SiteHeader, but logic central here.
+      document.addEventListener('astro:page-load', () => {
+        const btn = document.querySelector<HTMLButtonElement>('[data-theme-toggle]');
+        if (!btn) return;
+        const update = () => {
+          const dark = document.documentElement.classList.contains('dark');
+          btn.setAttribute('aria-pressed', String(dark));
+          btn.title = dark ? 'হালকা মোডে যাও' : 'অন্ধকার মোডে যাও';
+        };
+        update();
+        btn.addEventListener('click', () => {
+          const next = !document.documentElement.classList.contains('dark');
+          document.documentElement.classList.toggle('dark', next);
+          localStorage.setItem('theme', next ? 'dark' : 'light');
+          update();
+        });
+      });
+    </script>
+  </body>
+</html>

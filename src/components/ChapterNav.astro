@@ -1,0 +1,22 @@
+---
+interface ChapterLink { slug: string; number: string; title: string; }
+interface Props {
+  prev?: ChapterLink;
+  next?: ChapterLink;
+}
+const { prev, next } = Astro.props;
+---
+<nav class="not-prose mt-16 pt-6 border-t border-[rgb(var(--border))] grid grid-cols-1 md:grid-cols-2 gap-3" aria-label="অধ্যায় navigation">
+  {prev ? (
+    <a href={`/chapters/${prev.slug}`} class="group block rounded-xl border border-[rgb(var(--border))] bg-[rgb(var(--surface))] p-4 no-underline hover:border-[rgb(var(--primary))]">
+      <span class="block text-xs uppercase tracking-wide text-[rgb(var(--text-muted))] mb-1">← আগের অধ্যায়</span>
+      <span class="block font-bold text-[rgb(var(--text))] group-hover:text-[rgb(var(--primary))]">অধ্যায় {prev.number} — {prev.title}</span>
+    </a>
+  ) : <span></span>}
+  {next ? (
+    <a href={`/chapters/${next.slug}`} class="group block rounded-xl border border-[rgb(var(--border))] bg-[rgb(var(--surface))] p-4 no-underline hover:border-[rgb(var(--primary))] md:text-right">
+      <span class="block text-xs uppercase tracking-wide text-[rgb(var(--text-muted))] mb-1">পরের অধ্যায় →</span>
+      <span class="block font-bold text-[rgb(var(--text))] group-hover:text-[rgb(var(--primary))]">অধ্যায় {next.number} — {next.title}</span>
+    </a>
+  ) : <span></span>}
+</nav>

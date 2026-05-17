@@ -1,0 +1,25 @@
+---
+interface Props {
+  mvvmTitle?: string;
+  tcaTitle?: string;
+}
+const { mvvmTitle = 'MVVM যেভাবে করো', tcaTitle = 'TCA-তে যেভাবে হবে' } = Astro.props;
+---
+<div class="not-prose my-7 grid gap-4 md:grid-cols-2">
+  <div class="rounded-xl border border-[rgb(var(--border))] bg-[rgb(var(--surface))] overflow-hidden">
+    <div class="px-4 py-2 bg-[rgb(var(--code-bg))] border-b border-[rgb(var(--border))] text-sm font-bold text-[rgb(var(--text-muted))] flex items-center gap-2">
+      <span aria-hidden="true">📜</span> {mvvmTitle}
+    </div>
+    <div class="p-4 [&_pre]:!my-0 [&_pre]:!rounded-none [&_pre]:!border-0 [&>*:first-child]:!mt-0 [&>*:last-child]:!mb-0">
+      <slot name="mvvm" />
+    </div>
+  </div>
+  <div class="rounded-xl border-2 border-[rgb(var(--accent))] bg-[rgb(var(--surface))] overflow-hidden">
+    <div class="px-4 py-2 bg-[rgb(var(--accent))]/10 border-b border-[rgb(var(--accent))]/40 text-sm font-bold text-[rgb(var(--accent))] flex items-center gap-2">
+      <span aria-hidden="true">🌿</span> {tcaTitle}
+    </div>
+    <div class="p-4 [&_pre]:!my-0 [&_pre]:!rounded-none [&_pre]:!border-0 [&>*:first-child]:!mt-0 [&>*:last-child]:!mb-0">
+      <slot name="tca" />
+    </div>
+  </div>
+</div>

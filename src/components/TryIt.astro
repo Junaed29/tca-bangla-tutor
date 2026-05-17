@@ -1,0 +1,14 @@
+---
+interface Props {
+  title?: string;
+}
+const { title = 'চেষ্টা করে দেখো' } = Astro.props;
+---
+<div class="not-prose my-6 rounded-xl border-2 border-dashed border-[rgb(var(--primary))]/40 bg-[rgb(var(--callout-try))] p-4">
+  <p class="flex items-center gap-2 m-0 mb-2 font-bold text-[rgb(var(--text))]">
+    <span aria-hidden="true">✏️</span> <span>{title}</span>
+  </p>
+  <div class="text-[rgb(var(--text))] [&>p]:my-2 [&>p:first-child]:mt-0 [&>p:last-child]:mb-0 [&_code]:bg-[rgb(var(--surface))] [&_code]:border [&_code]:border-[rgb(var(--border))] [&_code]:px-1 [&_code]:rounded [&_code]:text-[rgb(var(--primary))]">
+    <slot />
+  </div>
+</div>

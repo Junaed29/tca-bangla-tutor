@@ -1,0 +1,229 @@
+---
+number: "০২"
+title: "TCA কী, MVVM-এর সাথে পার্থক্য"
+subtitle: "MVVM যে জায়গায় ছেড়ে দেয়, TCA সেখান থেকে শুরু করে।"
+part: "গল্প"
+partLabel: "PART ১ — গল্প"
+order: 2
+readingTime: "১০ মিনিট পড়ার সময়"
+summary: "TCA আসলে কী জিনিস, কেন আছে, MVVM-এর সাথে পার্থক্য কোথায়। দুটো pattern পাশাপাশি দাঁড় করিয়ে দেখলে অনেক কিছু পরিষ্কার হয়ে যায়।"
+---
+
+import Callout from '../../components/Callout.astro';
+import MvvmVsTca from '../../components/MvvmVsTca.astro';
+
+আগের অধ্যায়ে চা স্টলের নিয়ম দেখলে। এখন প্রশ্ন — *"ঠিক আছে, কিন্তু MVVM-এও তো state থাকে, view থাকে। তাহলে নতুন কী?"* — সেটাই দেখবো এই অধ্যায়ে।
+
+## TCA জিনিসটা আসলে কী
+
+এক বাক্যে — TCA হলো একটা **library**। Point-Free নামের একটা কোম্পানি বানিয়েছে (Brandon Williams আর Stephen Celis)। কাজটা কী? তোমার app-এর সব state এক জায়গায় রাখা, আর সব side effect (API call, timer, notification) এক pattern-এ handle করা। ব্যস, এইটুকুই।
+
+GitHub-এ পাবে: [`pointfreeco/swift-composable-architecture`](https://github.com/pointfreeco/swift-composable-architecture)। SwiftPM দিয়ে এক লাইনে add হয়।
+
+<Callout type="warn" title="পুরনো tutorial-এর ফাঁদ">
+Google করলে অনেক পুরনো Bangla বা English tutorial আসবে — যেখানে দেখবে `Reducer<State, Action, Environment>` লেখা, বা `WithViewStore`, `.pullback`, `.combine`। **এগুলো TCA-র পুরনো API** (১.০-র আগে)। চিন্তা নেই, ওই pattern-গুলো আজকাল আর use হয় না।
+
+আমরা এই site-এ শিখবো **modern API** — যেটায় `@Reducer` macro আছে, `@ObservableState` আছে, `Scope` আছে। TCA 1.5+ থেকে এটাই standard, আর ভবিষ্যতেও এটাই থাকবে। পুরনো API-র দিকে তাকানো বন্ধ — এই tutorial-এ সব নতুন।
+</Callout>
+
+## MVVM-এ যা হয়
+
+ধরো তুমি একটা Counter app বানাচ্ছ MVVM-এ। একটা view model থাকবে, একটা view থাকবে। কোডটা মোটামুটি এরকম দেখাবে:
+
+```swift
+// ViewModel
+final class CounterViewModel: ObservableObject {
+    @Published var count = 0
+    @Published var fact: String?
+    @Published var isLoading = false
+
+    func increment() { count += 1 }
+    func decrement() { count -= 1 }
+
+    func fetchFact() async {
+        isLoading = true
+        let url = URL(string: "http://numbersapi.com/\(count)")!
+        let (data, _) = try? await URLSession.shared.data(from: url) ?? (Data(), URLResponse())
+        fact = String(data: data, encoding: .utf8)
+        isLoading = false
+    }
+}
+
+// View
+struct CounterView: View {
+    @StateObject var vm = CounterViewModel()
+
+    var body: some View {
+        VStack {
+            Text("\(vm.count)")
+            Button("+") { vm.increment() }
+            Button("Fact") { Task { await vm.fetchFact() } }
+            if let fact = vm.fact { Text(fact) }
+        }
+    }
+}
+```
+
+কাজ চলছে। দেখতে clean। কিন্তু কিছু **লুকানো সমস্যা** আছে —
+
+১। **State আর side effect-এর মধ্যে দেয়াল নেই।** `fetchFact()` এর ভেতরে state আর network call দুটোই হচ্ছে। বড় feature-এ এই function ৫০-৬০ লাইন হয়ে যায়।
+
+২। **View নিজে method call করছে।** `vm.increment()` — view সরাসরি ViewModel-এর method ডাকছে। এই function কখন কাকে call করে, কোন order-এ — সব tracking কঠিন।
+
+৩। **Test করতে কষ্ট।** `URLSession.shared.data(...)` সরাসরি ব্যবহার — test-এ এটাকে mock করতে গেলে protocol বানাও, dependency inject করো... ১০-১৫ লাইনের boilerplate।
+
+৪। **দুই view model মিললে আরও জটিল।** Profile + Cart + Counter — তিনটা ভিন্ন view model। কে কাকে call করবে, কে কার update শুনবে — combineLatest, sink, AnyCancellable… ১০ মিনিটে মাথা ঘোরাবে।
+
+## TCA-তে একই জিনিস
+
+এবার same Counter app TCA-তে দেখো —
+
+```swift
+@Reducer
+struct CounterFeature {
+    @ObservableState
+    struct State: Equatable {
+        var count = 0
+        var fact: String?
+        var isLoading = false
+    }
+
+    enum Action {
+        case incrementTapped
+        case decrementTapped
+        case factButtonTapped
+        case factResponse(String)
+    }
+
+    @Dependency(\.numberFact) var numberFact
+
+    var body: some ReducerOf<Self> {
+        Reduce { state, action in
+            switch action {
+            case .incrementTapped:
+                state.count += 1
+                return .none
+
+            case .decrementTapped:
+                state.count -= 1
+                return .none
+
+            case .factButtonTapped:
+                state.isLoading = true
+                return .run { [count = state.count] send in
+                    let fact = try await numberFact.fetch(count)
+                    await send(.factResponse(fact))
+                }
+
+            case let .factResponse(fact):
+                state.isLoading = false
+                state.fact = fact
+                return .none
+            }
+        }
+    }
+}
+```
+
+প্রথম দেখায় MVVM-এর তুলনায় বেশি লাইন। কিন্তু লক্ষ্য করো —
+
+- `State` আলাদা একটা struct — সব data এখানে।
+- `Action` একটা enum — কী কী হতে পারে তার exhaustive list।
+- `Reduce { state, action in ... }` — মামা। শুধু এই function state বদলায়।
+- `.run { ... }` — ছোট ভাই করিমকে পাঠানো। বাইরের কাজ এখানে।
+- `@Dependency(\.numberFact)` — `URLSession` সরাসরি use করছে না; একটা client inject হচ্ছে — যেটা test-এ fake দিয়ে replace হবে।
+
+প্রতিটা concern এর জন্য একটা নির্দিষ্ট জায়গা আছে। এই **জায়গা থাকা**টাই TCA-র asset।
+
+## পাশাপাশি দেখো
+
+<MvvmVsTca>
+<Fragment slot="mvvm">
+
+```swift
+final class CounterVM: ObservableObject {
+    @Published var count = 0
+
+    func increment() {
+        count += 1
+    }
+}
+
+// View
+Button("+") { vm.increment() }
+```
+
+State আর behavior view model-এ মেশানো। View সরাসরি function call করছে।
+
+</Fragment>
+<Fragment slot="tca">
+
+```swift
+@Reducer
+struct CounterFeature {
+    @ObservableState
+    struct State { var count = 0 }
+
+    enum Action {
+        case incrementTapped
+    }
+
+    var body: some ReducerOf<Self> {
+        Reduce { state, action in
+            switch action {
+            case .incrementTapped:
+                state.count += 1
+                return .none
+            }
+        }
+    }
+}
+
+// View
+Button("+") { store.send(.incrementTapped) }
+```
+
+State আলাদা, Action enum, Reducer-এ সব decision। View শুধু action পাঠায়।
+
+</Fragment>
+</MvvmVsTca>
+
+প্রথম দেখায় TCA-র version বেশি লম্বা। কিন্তু এই **structure**-টাই বড় app-এ বাঁচায়।
+
+## মূল পার্থক্য — এক বাক্যে
+
+> **MVVM** state আর behavior একসাথে রাখে — তুমি discipline দিয়ে আলাদা রাখবে। **TCA** state, action, behavior, side-effect আলাদা compartment-এ force করে — discipline pattern-এই বাঁধা।
+
+মানে MVVM-এও তুমি ভালো architecture করতে পারো — শুধু তোমাকে নিজে rule banaate হবে, follow করতে হবে। TCA-তে rule ইতিমধ্যে আছে — তুমি না চাইলেও follow করতে বাধ্য।
+
+## কেন এই পার্থক্য matter করে
+
+**ছোট app-এ matter করে না।** ৫টা screen, একটা view model, দুই-তিনটা API call — MVVM enough। TCA add করলে boilerplate বেশি বলে মনে হবে।
+
+**বড় app-এ matter করে।** ২০-৩০টা screen, navigation jungle, এক screen-এর change অন্য screen-এ reflect হতে হবে, প্রতিটা feature-এর test লিখতে হবে — তখন TCA-র structure গায়ে লেগে যায়।
+
+আমরা অধ্যায় ১০-এ এই decision আরো ধীরে ধীরে দেখবো — *"কোন project-এ TCA, কোনটায় না?"* আপাতত এটুকু জেনে রাখো —
+
+<Callout type="tip" title="মনে রাখো">
+TCA bigger projects-এর জন্য বানানো। ছোট app-এ MVVM যথেষ্ট। কিন্তু যদি app বড় হবে — যদি team বড় হবে — যদি একই behavior বার বার test করতে হবে — তখন TCA তোমার বন্ধু।
+</Callout>
+
+## চা স্টলে যেমন
+
+<Callout type="tea-stall">
+MVVM-এ মামার বোর্ড আছে, কিন্তু বোর্ডে chalk চালানোর কোনো rule নেই। ছোট ভাই, কাস্টমার, যে কেউ এসে লিখতে পারে — বললে কে আটকাবে?
+
+TCA এসে বলে: *"না না, এমন হবে না। বোর্ড একটা — chalk একজনের হাতে। কাস্টমার অর্ডার পাঠাবে, ছোট ভাই বাজার থেকে এসে নতুন অর্ডার পাঠাবে — কিন্তু লিখবে শুধু মামা।"* এই discipline-টাই TCA-র সবচেয়ে বড় উপহার।
+</Callout>
+
+## এই অধ্যায়ের সারমর্ম
+
+<Callout type="remember">
+- TCA হলো একটা library যেটা state + side effect একটা strict pattern-এ চালায়।
+- MVVM-এ pattern নেই, শুধু convention — তুমি নিজে discipline maintain করো।
+- TCA-তে State, Action, Reducer, Effect — সব আলাদা compartment-এ।
+- ছোট app-এ MVVM enough; বড় app বা long-running project-এ TCA।
+- পুরনো API (Reducer<State, Action, Environment>, .pullback, WithViewStore) ভুলে যাও — আমরা modern শিখবো।
+</Callout>
+
+পরের অধ্যায়ে আমরা ৫ বন্ধুর সাথে আলাদা আলাদা পরিচিত হবো। State আগে, তারপর Action, Reducer, Store, Effect — এক এক করে।

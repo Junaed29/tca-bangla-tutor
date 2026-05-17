@@ -1,0 +1,47 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import ChapterHeader from '../../components/ChapterHeader.astro';
+import ChapterNav from '../../components/ChapterNav.astro';
+import ProgressBar from '../../components/ProgressBar.astro';
+import TocSidebar from '../../components/TocSidebar.astro';
+
+export async function getStaticPaths() {
+  const chapters = (await getCollection('chapters')).sort((a, b) => a.data.order - b.data.order);
+  return chapters.map((entry, idx) => ({
+    params: { slug: entry.id },
+    props: {
+      entry,
+      all: chapters,
+      prev: idx > 0 ? chapters[idx - 1] : undefined,
+      next: idx < chapters.length - 1 ? chapters[idx + 1] : undefined,
+    },
+  }));
+}
+
+const { entry, all, prev, next } = Astro.props;
+const { Content } = await render(entry);
+const total = all.length;
+const current = all.findIndex(c => c.id === entry.id) + 1;
+---
+<Layout title={entry.data.title} description={entry.data.summary}>
+  <div class="max-w-7xl mx-auto px-4 md:px-6 py-8 grid gap-8 lg:grid-cols-[16rem_minmax(0,1fr)]">
+    <TocSidebar chapters={all} currentSlug={entry.id} />
+
+    <article class="prose-bn min-w-0" data-pagefind-body>
+      <ProgressBar current={current} total={total} />
+      <ChapterHeader
+        number={entry.data.number}
+        title={entry.data.title}
+        subtitle={entry.data.subtitle}
+        partLabel={entry.data.partLabel}
+        readingTime={entry.data.readingTime}
+      />
+      <Content />
+      <ChapterNav
+        prev={prev && { slug: prev.id, number: prev.data.number, title: prev.data.title }}
+        next={next && { slug: next.id, number: next.data.number, title: next.data.title }}
+      />
+    </article>
+  </div>
+</Layout>

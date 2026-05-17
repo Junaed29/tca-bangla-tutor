@@ -1,17 +1,75 @@
 ---
+import Layout from '../layouts/Layout.astro';
+import { getCollection } from 'astro:content';
+import { PARTS } from '../consts';
+import TeaStallScene from '../components/TeaStallScene.astro';
 
+const chapters = (await getCollection('chapters')).sort((a, b) => a.data.order - b.data.order);
+const partOrder = ['warm-up', 'গল্প', 'হাতে কলমে', 'গভীরে', 'সিদ্ধান্ত', 'closing'] as const;
+const parts = partOrder
+  .map(id => ({ id, info: PARTS.find(p => p.id === id)!, entries: chapters.filter(c => c.data.part === id) }))
+  .filter(p => p.entries.length > 0);
 ---
+<Layout>
+  <section class="bg-gradient-to-b from-[rgb(var(--callout-tea))] to-transparent">
+    <div class="max-w-5xl mx-auto px-4 pt-12 pb-8 md:pt-20 md:pb-12 text-center">
+      <p class="text-[rgb(var(--primary))] font-bold text-sm uppercase tracking-widest mb-3">বাংলায়, গল্পের মতো করে</p>
+      <h1 class="text-4xl md:text-6xl font-bold leading-tight text-[rgb(var(--text))] mb-4">
+        TCA শেখো — চা ঠান্ডা হওয়ার আগে।
+      </h1>
+      <p class="text-lg md:text-xl text-[rgb(var(--text-muted))] max-w-3xl mx-auto mb-6 leading-relaxed">
+        The Composable Architecture কঠিন না, শুধু একটু গুছিয়ে বলার অপেক্ষা। MVVM থেকে SwiftUI যারা শিখেছ, তোমাদের জন্যই এই সাইট — ১২টা অধ্যায়, একটা চা স্টল আর ৫ জন বন্ধু।
+      </p>
+      <div class="flex flex-wrap items-center justify-center gap-3">
+        <a href={`/chapters/${chapters[0]?.id ?? '00-shuru-korar-age'}`}
+           class="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-[rgb(var(--primary))] text-white no-underline font-bold hover:bg-[rgb(var(--accent))]">
+          শুরু করো → অধ্যায় ০০
+        </a>
+        <a href="/about" class="inline-flex items-center gap-2 px-5 py-3 rounded-lg border border-[rgb(var(--border))] text-[rgb(var(--text))] no-underline hover:border-[rgb(var(--primary))]">
+          কেন এই সাইট?
+        </a>
+      </div>
+    </div>
+  </section>
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+  <TeaStallScene caption="এই দৃশ্যটাই পুরো TCA-র গল্প। প্রতিটা অধ্যায়ে আমরা এখানেই ফিরবো।" />
+
+  <section class="max-w-5xl mx-auto px-4 py-12">
+    <h2 class="text-2xl md:text-3xl font-bold mb-6 text-[rgb(var(--text))]">পুরো রাস্তাটা এক নজরে</h2>
+    <div class="grid gap-6 md:grid-cols-2">
+      {parts.map(p => (
+        <div class="rounded-xl border border-[rgb(var(--border))] bg-[rgb(var(--surface))] p-5">
+          <p class="text-[rgb(var(--primary))] font-bold text-xs uppercase tracking-wide mb-1">{p.info.label}</p>
+          {p.info.tagline && <p class="text-[rgb(var(--text-muted))] text-sm mb-3">{p.info.tagline}</p>}
+          <ul class="list-none p-0 m-0 space-y-1.5">
+            {p.entries.map(c => (
+              <li class="flex items-start gap-2">
+                <span class="font-mono text-xs text-[rgb(var(--text-muted))] pt-0.5">{c.data.number}</span>
+                <a href={`/chapters/${c.id}`} class="no-underline hover:underline text-[rgb(var(--text))] hover:text-[rgb(var(--primary))]">{c.data.title}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <section class="max-w-3xl mx-auto px-4 py-12 text-center">
+    <h2 class="text-2xl font-bold mb-3 text-[rgb(var(--text))]">তুমি যা শিখবে</h2>
+    <p class="text-[rgb(var(--text-muted))] mb-6">পড়া শেষে তুমি বলতে পারবে —</p>
+    <ul class="grid gap-3 sm:grid-cols-3 text-sm text-start max-w-2xl mx-auto list-none p-0">
+      <li class="rounded-lg border border-[rgb(var(--border))] bg-[rgb(var(--surface))] p-3">
+        <strong class="block text-[rgb(var(--primary))]">৫ বন্ধু কে?</strong>
+        <span class="text-[rgb(var(--text-muted))]">State, Action, Reducer, Store, Effect — মুখস্থ না, বোঝা।</span>
+      </li>
+      <li class="rounded-lg border border-[rgb(var(--border))] bg-[rgb(var(--surface))] p-3">
+        <strong class="block text-[rgb(var(--primary))]">কখন TCA?</strong>
+        <span class="text-[rgb(var(--text-muted))]">কোন project-এ লাগবে, কোনটাতে overkill — সিদ্ধান্ত নিজেই নিতে পারবে।</span>
+      </li>
+      <li class="rounded-lg border border-[rgb(var(--border))] bg-[rgb(var(--surface))] p-3">
+        <strong class="block text-[rgb(var(--primary))]">Test করা সহজ</strong>
+        <span class="text-[rgb(var(--text-muted))]">TestStore-এর জাদু — TCA-র সবচেয়ে বড় উপহার।</span>
+      </li>
+    </ul>
+  </section>
+</Layout>

@@ -1,0 +1,74 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  chapters: CollectionEntry<'chapters'>[];
+  currentSlug: string;
+}
+const { chapters, currentSlug } = Astro.props;
+
+const parts: { id: string; label: string; entries: typeof chapters }[] = [];
+const partOrder = ['warm-up', 'গল্প', 'হাতে কলমে', 'গভীরে', 'সিদ্ধান্ত', 'closing'];
+for (const partId of partOrder) {
+  const entries = chapters.filter(c => c.data.part === partId);
+  if (entries.length) {
+    parts.push({ id: partId, label: entries[0].data.partLabel, entries });
+  }
+}
+---
+<aside class="not-prose hidden lg:block sticky top-20 self-start max-h-[calc(100dvh-6rem)] overflow-y-auto">
+  <nav aria-label="অধ্যায়ের তালিকা" class="text-sm">
+    <p class="font-bold text-[rgb(var(--text-muted))] uppercase tracking-wider text-xs mb-3">সব অধ্যায়</p>
+    {parts.map(part => (
+      <section class="mb-5">
+        <p class="text-[rgb(var(--primary))] font-bold text-xs uppercase tracking-wide mb-1.5">{part.label}</p>
+        <ul class="space-y-0.5 list-none p-0 m-0">
+          {part.entries.map(c => (
+            <li class="m-0 p-0">
+              <a
+                href={`/chapters/${c.id}`}
+                class:list={[
+                  'block px-2 py-1 rounded-md no-underline leading-snug',
+                  c.id === currentSlug
+                    ? 'bg-[rgb(var(--primary))]/10 text-[rgb(var(--primary))] font-bold'
+                    : 'text-[rgb(var(--text-muted))] hover:bg-[rgb(var(--code-bg))] hover:text-[rgb(var(--text))]',
+                ]}
+              >
+                <span class="font-mono text-[10px] mr-1.5 opacity-60">{c.data.number}</span>{c.data.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+  </nav>
+</aside>
+
+<details class="not-prose lg:hidden mb-6 rounded-xl border border-[rgb(var(--border))] bg-[rgb(var(--surface))]">
+  <summary class="cursor-pointer px-4 py-3 font-bold text-sm flex items-center justify-between">
+    <span>সব অধ্যায় দেখো</span>
+    <span aria-hidden="true">▾</span>
+  </summary>
+  <nav class="px-4 pb-4 text-sm" aria-label="অধ্যায়ের তালিকা (mobile)">
+    {parts.map(part => (
+      <section class="mb-4 last:mb-0">
+        <p class="text-[rgb(var(--primary))] font-bold text-xs uppercase tracking-wide mb-1.5">{part.label}</p>
+        <ul class="space-y-0.5 list-none p-0 m-0">
+          {part.entries.map(c => (
+            <li class="m-0 p-0">
+              <a
+                href={`/chapters/${c.id}`}
+                class:list={[
+                  'block px-2 py-1 rounded-md no-underline leading-snug',
+                  c.id === currentSlug ? 'bg-[rgb(var(--primary))]/10 text-[rgb(var(--primary))] font-bold' : 'text-[rgb(var(--text-muted))]',
+                ]}
+              >
+                <span class="font-mono text-[10px] mr-1.5 opacity-60">{c.data.number}</span>{c.data.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+  </nav>
+</details>

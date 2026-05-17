@@ -1,0 +1,158 @@
+---
+number: "০০"
+title: "শুরু করার আগে"
+subtitle: "এক কাপ চা ঢালো, তারপর পড়া শুরু করো।"
+part: "warm-up"
+partLabel: "শুরুর আগে"
+order: 0
+readingTime: "৬ মিনিট পড়ার সময়"
+summary: "এই সাইটটা কাদের জন্য, কীভাবে পড়লে সবচেয়ে মজা পাবে, একবারে Xcode-এ TCA setup করে নাও, আর সব chapter-এর জন্য একটাই TCAPlayground project বানিয়ে নাও।"
+---
+
+import Callout from '../../components/Callout.astro';
+import TryIt from '../../components/TryIt.astro';
+
+দাঁড়াও, কোডে যাওয়ার আগে দু মিনিট গল্প করি।
+
+তুমি SwiftUI জানো। MVVM-এ apps বানিয়েছ। কাজ চলছে। তারপরেও — কোথাও যেন একটু **খচখচ** করে। নতুন একটা feature আসলেই view model গুলো ফুলে ফেঁপে ওঠে। Cart-এ একটা item যোগ হলে badge update করতে গিয়ে দেখো — তিন জায়গায় একই code, আর কোনটা যে first update হবে সেটাও মাঝে মাঝে মনে থাকে না। Test লিখতে গেলে এতো mock বানাতে হয় যে test-এই গাঁট লেগে যায়।
+
+তাই TCA-র নাম শুনে তুমি Google-এ গেছ। দু-তিনটা official tutorial পড়তে গিয়ে মাথা ঘুরে গেছে। `Reducer`, `Effect`, `Store`, `Scope`, `@Dependency` — এতো নতুন শব্দ! কেউ বলে "এটা React-এর Redux-এর মতো"। তুমি Redux-ও জানো না।
+
+<Callout type="tip" title="যা বলতে চাইছি">
+এই অনুভূতি — চেস্টে একটু ভারী লাগা, মাথার পেছনে *"আমি কি পারবো?"* — এটা real। কিন্তু TCA আসলে কঠিন না। শুধু একটু গুছিয়ে বললে পুরো জিনিসটা ৩-৪ লাইনে ধরা যায়।
+</Callout>
+
+## এই সাইটটা কার জন্য
+
+তুমি যদি এই তিনটার মধ্যে অন্তত দুটোতে "হ্যাঁ" বলো — তাহলে এই সাইট তোমার জন্য:
+
+- SwiftUI দিয়ে অন্তত একটা ছোট app লিখেছ (`@State`, `@Binding`, `ObservableObject` চিনো)।
+- MVVM pattern-এ কাজ করেছ — view model বানিয়েছ, `@Published` use করেছ।
+- TCA-র নাম শুনেছ, কিন্তু পুরোটা এখনো ধরতে পারোনি। অথবা একবার চেষ্টা করেছিলে — পেরে ওঠোনি।
+
+যদি Swift-ই নতুন হয়, বা SwiftUI কখনো লেখোনি — তাহলে আগে একটা SwiftUI hello-world বানিয়ে এসো, তারপর ফিরে আসো। কথা দিচ্ছি, অপেক্ষা করবো।
+
+## কীভাবে পড়লে সবচেয়ে মজা পাবে
+
+ধীরে ধীরে। এক বসায় ১২টা অধ্যায় শেষ করার দরকার নেই। বরং —
+
+- প্রতিদিন এক-দুইটা অধ্যায় পড়ো। মাঝে একটু বিশ্রাম নাও।
+- কোড দেখো, তারপর Xcode খুলে নিজে টাইপ করো। Copy-paste না, **typing** — হাতের memory অন্য জিনিস।
+- কোনো অধ্যায়ে আটকে গেলে আগেরটায় ফিরে যাও। লজ্জা নেই।
+- শেষে এক-দুইটা টুক-টাক app নিজে বানিয়ে ফেলো। বইয়ের ভেতরের জ্ঞান যতক্ষণ না হাতে আসে — সেটা জ্ঞানই না।
+
+<Callout type="tea-stall">
+পুরো সাইটে একটা গল্প বার বার ফিরে আসবে — **চা স্টলের গল্প**। মামা, বোর্ড, ছোট ভাই, কাস্টমার। এই গল্পটা মাথায় গেঁথে গেলে TCA-র সব concept তুমি এমনি বুঝে যাবে। এটাই আমাদের anchor — আমরা যতই কোডের গভীরে যাই, চা স্টলের কাছে ফিরে আসবো।
+</Callout>
+
+## একবার Setup করো — তারপর সব Offline
+
+আগে একটা practical কাজ সেরে ফেলি। এই setupটা **একবারই** করতে হবে — তারপর internet-এর দরকার নেই, পুরো শেখা offline-ই হবে।
+
+১। **নতুন Xcode project বানাও।** Xcode খোলো → *Create New Project* → *iOS* → *App* → Next। নাম দাও যা খুশি — আমরা পরে এটাকেই `TCAPlayground` বলে ডাকবো, তাই এই নামই দিয়ে দাও। Interface: **SwiftUI**। Language: **Swift**। বাকি default থাকুক। *Next* → কোথাও save করো।
+
+২। **TCA package add করো।** Xcode-এ মেনু থেকে: *File → Add Package Dependencies…*। উপরের search bar-এ এই URL paste করো —
+
+```
+https://github.com/pointfreeco/swift-composable-architecture
+```
+
+ডান পাশে *Dependency Rule* হিসেবে *Up to Next Major Version*, version যা আছে রেখে দাও (এখন `1.x.x` চলছে)। *Add Package* চাপো। আবার একটা dialog আসবে — *swift-composable-architecture* package-এর মধ্যে একটাই library থাকবে: `ComposableArchitecture`। সেটা select করে *Add Package*।
+
+৩। **একবার build করো।** ⌘B চেপে দেখো। প্রথমবার একটু সময় নেবে — TCA আর তার dependencies download হচ্ছে, compile হচ্ছে। শেষ হলে *Build Succeeded* দেখাবে।
+
+এটুকু হয়ে গেলে — Mac-এর `~/Library/Developer/Xcode/DerivedData` আর `~/Library/Caches/org.swift.swiftpm` ফোল্ডারে TCA cache হয়ে গেছে। এর পরে wifi না থাকলেও Xcode কাজ করবে।
+
+<Callout type="tip" title="এই website-টাও offline চলে">
+যদি এই tutorial site-টা তুমি local-এ পেয়ে থাক বা clone করে নিয়েছ — তাহলে শুধু `npm install` একবার করে নাও (একবার internet লাগবে), তারপর `npm run dev` দিয়ে browser-এ পড়তে পারবে, internet বন্ধ থাকলেও।
+</Callout>
+
+## হাতে কলমে শেখার Project — TCAPlayground
+
+এবার একটা **গুরুত্বপূর্ণ** কথা। ১২টা অধ্যায়ের জন্য ১২টা আলাদা Xcode project বানাবে না। **একটাই project — `TCAPlayground`**। প্রতিটা chapter-এর code যাবে আলাদা folder-এ। তাহলে structure হবে এরকম —
+
+```
+TCAPlayground/                      ← একটাই project, সব এখানে।
+├── TCAPlaygroundApp.swift          ← App entry — শুধু chapter switcher।
+├── ContentView.swift               ← Default টা — পরে delete বা use করতে পারো।
+├── Chapter04_Counter/
+│   ├── CounterFeature.swift
+│   └── CounterView.swift
+├── Chapter05_NumberFact/
+│   ├── NumberFactFeature.swift
+│   └── NumberFactView.swift
+├── Chapter06_Composition/
+│   ├── AppFeature.swift
+│   ├── ProfileFeature.swift
+│   └── ...
+├── Chapter07_Navigation/
+├── Chapter08_Dependencies/
+├── Chapter09_Testing/              ← Tests আসবে TCAPlaygroundTests-এ।
+└── Chapter11_TodoApp/              ← একটা ছোট real project।
+```
+
+কেন এক project? — খুব practical কারণ:
+
+- TCA library একবারই add করতে হবে, ১২ বার না।
+- আগের chapter-এর কোড পাশে রেখে compare করতে পারবে।
+- প্রথমবারের পর build time অনেক কম, কারণ TCA cache হয়ে আছে।
+- পরে চাইলে যেকোনো folder copy করে নিজের আসল project-এ নিয়ে যেতে পারবে।
+
+### App entry — একটা ছোট chapter switcher
+
+`TCAPlaygroundApp.swift`-এ নিচের মতো কিছু রাখো। প্রতিটা chapter আমরা পরে এই list-এ যোগ করবো —
+
+```swift
+import SwiftUI
+import ComposableArchitecture
+
+@main
+struct TCAPlaygroundApp: App {
+    var body: some Scene {
+        WindowGroup {
+            NavigationStack {
+                List {
+                    Section("Part ২ — হাতে কলমে") {
+                        // অধ্যায় ০৪
+                        NavigationLink("০৪ — Counter") {
+                            CounterView(
+                                store: Store(initialState: CounterFeature.State()) {
+                                    CounterFeature()
+                                }
+                            )
+                        }
+                        // অধ্যায় ০৫, ০৬ পরে এখানে যোগ হবে।
+                    }
+                    // পরের part গুলো পরে।
+                }
+                .navigationTitle("TCAPlayground")
+            }
+        }
+    }
+}
+```
+
+এখন এটা compile করবে না — কারণ `CounterFeature` এখনো বানানো হয়নি। সেটা আমরা অধ্যায় ০৪-এ একসাথে বানাবো। আপাতত এই file-এর content টা comment out করে রাখতে পারো, বা পুরোটা পরে এই form-এ আনবে। চিন্তা নেই।
+
+<TryIt title="দু'মিনিটের সেটআপ চেক">
+এই অধ্যায় শেষ করার আগে এই কাজগুলো একবার সেরে রাখো —
+
+১। Xcode-এ `TCAPlayground` নামে একটা SwiftUI App project বানিয়েছ।
+২। `https://github.com/pointfreeco/swift-composable-architecture` package add করেছ।
+৩। File menu → *New → Group* দিয়ে একটা empty folder বানাও — নাম `Chapter04_Counter`।
+৪। ⌘B চেপে build clean হচ্ছে কিনা দেখো (`ContentView` থাকতে পারে, সেটা সমস্যা না)।
+
+যদি build fail করে — চিন্তা নেই, অধ্যায় ০৪-এ ধাপে ধাপে দেখাবো। কিন্তু সাধারণত এই চারটা ঠিকঠাক করলে clean build হবে।
+</TryIt>
+
+## একটা ছোট promise
+
+এই সাইট শেষ হওয়ার পর — যদি তুমি অধ্যায় ০০ থেকে অধ্যায় ১২ পর্যন্ত পুরোটা পড়ো, আর Xcode-এ হাত চালাও — তখন তুমি **তিনটা জিনিস** নিজে নিজে বলতে পারবে:
+
+১। TCA-র ৫ বন্ধুর নাম, আর কে কী করে।
+২। MVVM আর TCA-র মূল পার্থক্য, এক বাক্যে।
+৩। নতুন কোনো project শুরু করার সময় — TCA use করবে কি করবে না, সেই সিদ্ধান্তটা।
+
+এর বেশি কিছু তোমার এই মুহূর্তে দরকার নেই।
+
+তো চলো — অধ্যায় ০১ এ যাই। চা স্টলে স্বাগতম।

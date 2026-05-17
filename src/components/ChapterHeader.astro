@@ -1,0 +1,23 @@
+---
+interface Props {
+  number: string;
+  title: string;
+  subtitle?: string;
+  partLabel: string;
+  readingTime: string;
+}
+const { number, title, subtitle, partLabel, readingTime } = Astro.props;
+---
+<header class="not-prose mb-10 pb-6 border-b border-[rgb(var(--border))]">
+  <div class="flex flex-wrap items-center gap-3 mb-3 text-sm">
+    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[rgb(var(--primary))]/10 text-[rgb(var(--primary))] font-bold">
+      <span aria-hidden="true">🍵</span> {partLabel}
+    </span>
+    <span class="text-[rgb(var(--text-muted))]">
+      <span aria-hidden="true">⏱️</span> {readingTime}
+    </span>
+  </div>
+  <p class="text-[rgb(var(--text-muted))] text-sm tracking-wide uppercase font-bold mb-1">অধ্যায় {number}</p>
+  <h1 class="text-3xl md:text-4xl font-bold leading-tight text-[rgb(var(--text))]">{title}</h1>
+  {subtitle && <p class="mt-3 text-lg text-[rgb(var(--text-muted))]">{subtitle}</p>}
+</header>
