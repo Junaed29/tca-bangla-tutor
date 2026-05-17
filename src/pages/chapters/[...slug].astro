@@ -25,23 +25,235 @@ const total = all.length;
 const current = all.findIndex(c => c.id === entry.id) + 1;
 ---
 <Layout title={entry.data.title} description={entry.data.summary}>
-  <div class="max-w-7xl mx-auto px-4 md:px-6 py-8 grid gap-8 lg:grid-cols-[16rem_minmax(0,1fr)]">
-    <TocSidebar chapters={all} currentSlug={entry.id} />
+  <!-- Restore persisted sidebar state before first paint to avoid flash -->
+  <script is:inline>
+    (function () {
+      try {
+        var w = localStorage.getItem('tca-sidebar-w');
+        if (w) document.documentElement.style.setProperty('--sidebar-w', w);
+        var c = localStorage.getItem('tca-sidebar-collapsed') === 'true';
+        if (c) document.documentElement.setAttribute('data-sidebar', 'collapsed');
+      } catch (e) {}
+    })();
+  </script>
 
-    <article class="prose-bn min-w-0" data-pagefind-body>
-      <ProgressBar current={current} total={total} />
-      <ChapterHeader
-        number={entry.data.number}
-        title={entry.data.title}
-        subtitle={entry.data.subtitle}
-        partLabel={entry.data.partLabel}
-        readingTime={entry.data.readingTime}
-      />
-      <Content />
-      <ChapterNav
-        prev={prev && { slug: prev.id, number: prev.data.number, title: prev.data.title }}
-        next={next && { slug: next.id, number: next.data.number, title: next.data.title }}
-      />
-    </article>
+  <div class="max-w-7xl mx-auto px-4 md:px-6 py-8 chapter-shell">
+    <div class="chapter-grid grid gap-8 lg:gap-0" data-chapter-grid>
+      <TocSidebar chapters={all} currentSlug={entry.id} />
+
+      <div class="chapter-resizer hidden lg:block" data-resizer role="separator" aria-orientation="vertical" aria-label="সাইডবার-এর প্রস্থ বদলাও — drag করো বা double-click দিয়ে reset" tabindex="0">
+        <span aria-hidden="true"></span>
+      </div>
+
+      <article class="prose-bn min-w-0 chapter-article" data-pagefind-body>
+        <ProgressBar current={current} total={total} />
+        <ChapterHeader
+          number={entry.data.number}
+          title={entry.data.title}
+          subtitle={entry.data.subtitle}
+          partLabel={entry.data.partLabel}
+          readingTime={entry.data.readingTime}
+        />
+        <Content />
+        <ChapterNav
+          prev={prev && { slug: prev.id, number: prev.data.number, title: prev.data.title }}
+          next={next && { slug: next.id, number: next.data.number, title: next.data.title }}
+        />
+      </article>
+    </div>
+
+    <button
+      type="button"
+      data-show-sidebar
+      class="show-sidebar-tab"
+      aria-label="সাইডবার দেখাও"
+      title="সাইডবার দেখাও"
+    >
+      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
   </div>
+
+  <style is:global>
+    @media (min-width: 1024px) {
+      .chapter-grid {
+        grid-template-columns: var(--sidebar-w, 16rem) 12px minmax(0, 1fr);
+        align-items: start;
+      }
+      .chapter-grid > .chapter-article {
+        padding-left: 1.5rem;
+      }
+
+      /* Resizer column */
+      .chapter-resizer {
+        position: relative;
+        cursor: col-resize;
+        user-select: none;
+        touch-action: none;
+        align-self: stretch;
+        min-height: 100%;
+      }
+      .chapter-resizer > span {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        width: 2px;
+        margin-left: -1px;
+        background: rgb(var(--border));
+        border-radius: 2px;
+        transition: background 150ms, width 150ms;
+      }
+      .chapter-resizer:hover > span,
+      .chapter-resizer:focus-visible > span,
+      .chapter-resizer.is-dragging > span {
+        background: rgb(var(--primary));
+        width: 3px;
+        margin-left: -1.5px;
+      }
+      .chapter-resizer:focus-visible {
+        outline: none;
+      }
+
+      /* Collapsed state */
+      :root[data-sidebar='collapsed'] .chapter-grid {
+        grid-template-columns: 0 0 minmax(0, 1fr) !important;
+      }
+      :root[data-sidebar='collapsed'] .chapter-grid > [data-toc-sidebar],
+      :root[data-sidebar='collapsed'] .chapter-grid > .chapter-resizer {
+        display: none !important;
+      }
+      :root[data-sidebar='collapsed'] .chapter-grid > .chapter-article {
+        padding-left: 0;
+      }
+
+      /* Body cursor while dragging */
+      body.is-resizing {
+        cursor: col-resize !important;
+        user-select: none;
+      }
+      body.is-resizing * {
+        cursor: col-resize !important;
+      }
+
+      /* Show-tab visible only when collapsed on lg+ */
+      :root[data-sidebar='collapsed'] .show-sidebar-tab {
+        display: inline-flex;
+      }
+    }
+
+    .show-sidebar-tab {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 0;
+      transform: translateY(-50%);
+      align-items: center;
+      justify-content: center;
+      width: 24px;
+      height: 64px;
+      background: rgb(var(--surface));
+      border: 1px solid rgb(var(--border));
+      border-left: 0;
+      border-radius: 0 8px 8px 0;
+      color: rgb(var(--text-muted));
+      z-index: 25;
+      cursor: pointer;
+      transition: color 150ms, border-color 150ms, padding-right 150ms;
+    }
+    .show-sidebar-tab:hover {
+      color: rgb(var(--primary));
+      border-color: rgb(var(--primary));
+      padding-right: 2px;
+    }
+  </style>
+
+  <script>
+    function setupSidebar() {
+      const root = document.documentElement;
+      const grid = document.querySelector<HTMLElement>('[data-chapter-grid]');
+      const resizer = grid?.querySelector<HTMLElement>('[data-resizer]') ?? null;
+      const toggleBtn = document.querySelector<HTMLElement>('[data-toggle-sidebar]');
+      const showBtn = document.querySelector<HTMLElement>('[data-show-sidebar]');
+      if (!grid) return;
+
+      // Restore (in case inline script missed — and for SPA-style page-load).
+      const storedW = localStorage.getItem('tca-sidebar-w');
+      if (storedW) root.style.setProperty('--sidebar-w', storedW);
+      const collapsed = localStorage.getItem('tca-sidebar-collapsed') === 'true';
+      if (collapsed) root.setAttribute('data-sidebar', 'collapsed');
+      else root.removeAttribute('data-sidebar');
+
+      function setCollapsed(v: boolean) {
+        if (v) root.setAttribute('data-sidebar', 'collapsed');
+        else root.removeAttribute('data-sidebar');
+        localStorage.setItem('tca-sidebar-collapsed', String(v));
+      }
+
+      toggleBtn?.addEventListener('click', () => setCollapsed(true));
+      showBtn?.addEventListener('click', () => setCollapsed(false));
+
+      if (!resizer) return;
+
+      const MIN_PX = 192;   // 12rem
+      const MAX_PX = 384;   // 24rem
+
+      let dragging = false;
+
+      function updateWidth(clientX: number) {
+        const rect = grid!.getBoundingClientRect();
+        let w = clientX - rect.left;
+        if (w < MIN_PX) w = MIN_PX;
+        if (w > MAX_PX) w = MAX_PX;
+        root.style.setProperty('--sidebar-w', `${Math.round(w)}px`);
+      }
+
+      function onPointerMove(e: PointerEvent) {
+        if (!dragging) return;
+        updateWidth(e.clientX);
+      }
+      function onPointerUp() {
+        if (!dragging) return;
+        dragging = false;
+        resizer!.classList.remove('is-dragging');
+        document.body.classList.remove('is-resizing');
+        const w = root.style.getPropertyValue('--sidebar-w');
+        if (w) localStorage.setItem('tca-sidebar-w', w.trim());
+        document.removeEventListener('pointermove', onPointerMove);
+        document.removeEventListener('pointerup', onPointerUp);
+      }
+
+      resizer.addEventListener('pointerdown', (e) => {
+        dragging = true;
+        resizer.classList.add('is-dragging');
+        document.body.classList.add('is-resizing');
+        document.addEventListener('pointermove', onPointerMove);
+        document.addEventListener('pointerup', onPointerUp);
+        e.preventDefault();
+      });
+
+      // Double-click resets to default width.
+      resizer.addEventListener('dblclick', () => {
+        root.style.removeProperty('--sidebar-w');
+        localStorage.removeItem('tca-sidebar-w');
+      });
+
+      // Keyboard support: arrow keys to nudge width when focused.
+      resizer.addEventListener('keydown', (e) => {
+        const current = parseInt(getComputedStyle(grid!).gridTemplateColumns.split(' ')[0]) || 256;
+        const step = e.shiftKey ? 32 : 8;
+        let next = current;
+        if (e.key === 'ArrowLeft')  next = Math.max(MIN_PX, current - step);
+        else if (e.key === 'ArrowRight') next = Math.min(MAX_PX, current + step);
+        else if (e.key === 'Home')  next = MIN_PX;
+        else if (e.key === 'End')   next = MAX_PX;
+        else if (e.key === 'Enter' || e.key === ' ') { setCollapsed(true); e.preventDefault(); return; }
+        else return;
+        e.preventDefault();
+        root.style.setProperty('--sidebar-w', `${next}px`);
+        localStorage.setItem('tca-sidebar-w', `${next}px`);
+      });
+    }
+
+    document.addEventListener('astro:page-load', setupSidebar);
+  </script>
 </Layout>
