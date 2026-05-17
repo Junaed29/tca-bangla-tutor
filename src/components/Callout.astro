@@ -1,6 +1,6 @@
 ---
 interface Props {
-  type?: 'tea-stall' | 'tip' | 'warn' | 'try' | 'remember';
+  type?: 'tea-stall' | 'tip' | 'warn' | 'try' | 'remember' | 'checkpoint' | 'power-up' | 'boss-battle' | 'cheat-code' | 'mystery' | 'level-up';
   title?: string;
 }
 const { type = 'tip', title } = Astro.props;
@@ -35,6 +35,42 @@ const presets = {
     border: 'rgb(var(--primary))',
     icon: '📌',
     defaultTitle: 'মনে রাখো',
+  },
+  checkpoint: {
+    bg: 'rgb(var(--callout-checkpoint))',
+    border: '#5C8A4E',
+    icon: '✓',
+    defaultTitle: 'Checkpoint',
+  },
+  'power-up': {
+    bg: 'rgb(var(--callout-power))',
+    border: '#7E5BC4',
+    icon: '⚡',
+    defaultTitle: 'Power-up',
+  },
+  'boss-battle': {
+    bg: 'rgb(var(--callout-boss))',
+    border: '#D26852',
+    icon: '⚔️',
+    defaultTitle: 'Boss Battle',
+  },
+  'cheat-code': {
+    bg: 'rgb(var(--callout-cheat))',
+    border: '#C9882B',
+    icon: '🎮',
+    defaultTitle: 'Cheat code',
+  },
+  mystery: {
+    bg: 'rgb(var(--callout-mystery))',
+    border: '#3E6BB0',
+    icon: '🔍',
+    defaultTitle: 'রহস্য',
+  },
+  'level-up': {
+    bg: 'rgb(var(--callout-checkpoint))',
+    border: '#5C8A4E',
+    icon: '🎉',
+    defaultTitle: 'Level Up',
   },
 } as const;
 

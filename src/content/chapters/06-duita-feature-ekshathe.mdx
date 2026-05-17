@@ -1,6 +1,6 @@
 ---
 number: "০৬"
-title: "দুইটা feature একসাথে"
+title: "Quest ০৬ — দুইটা Feature একসাথে"
 subtitle: "Scope-এর সাথে পরিচয় — composition কীভাবে কাজ করে।"
 part: "হাতে কলমে"
 partLabel: "PART ২ — হাতে কলমে"
@@ -302,4 +302,10 @@ Scope(state: \.notes, action: \.notes) {
 - Children একে অপরকে চেনে না — সব communication parent-এর মধ্য দিয়ে।
 </Callout>
 
-PART ২ শেষ। তিনটা feature বানিয়েছ — counter, fact, composition। এখন PART ৩-এ আরো গভীরে যাবো — navigation, dependency, testing।
+<Callout type="checkpoint">
+তুমি একটা parent reducer-এ দুটো child compose করতে শিখলে। বড় app-এ এই pattern বার বার চলে — Scope, Scope, Scope, তারপর একটা ছোট outer Reduce।
+</Callout>
+
+<Callout type="level-up">
+🎉 **Level Up!** Part ২ শেষ। তুমি এখন একটা ছোট app নিজে দাঁড়িয়ে দাঁড়িয়ে বানাতে পারো। চা refill করো — Part ৩-এ আরো গভীরে যাচ্ছি: navigation, dependency, testing।
+</Callout>

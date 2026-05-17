@@ -1,6 +1,6 @@
 ---
 number: "০৮"
-title: "Dependencies — বাইরের জগৎ"
+title: "Quest ০৮ — Dependencies: বাইরের জগৎ"
 subtitle: "@Dependency দিয়ে inject করো — production-এ আসল, test-এ fake।"
 part: "গভীরে"
 partLabel: "PART ৩ — গভীরে"
@@ -342,4 +342,10 @@ struct WeatherClient {
 - `URLSession`, `Date`, `UUID`, file — সব বাইরের জিনিস dependency-এ wrap করো।
 </Callout>
 
-পরের অধ্যায়ে — TCA-র সবচেয়ে বড় উপহার। **Testing**। দেখবে dependency বানানোর কষ্ট কেন worth।
+<Callout type="checkpoint">
+এখন তোমার reducer-এ `URLSession`, `Date`, `UUID` সরাসরি নেই — সব dependency-তে wrap করা। Test লেখার রাস্তা পরিষ্কার।
+</Callout>
+
+<Callout type="level-up">
+🎉 **Level Up!** Production-এ আসল, test-এ fake — এক switch-এ পরিবর্তন। পরের quest-ই TCA-র সবচেয়ে বড় উপহার: **detective হয়ে test লেখা।**
+</Callout>
